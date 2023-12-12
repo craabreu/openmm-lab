@@ -1,0 +1,31 @@
+#ifndef OPENMM_COMMONNONBONDED_SLICINGKERNELSOURCES_H_
+#define OPENMM_COMMONNONBONDED_SLICINGKERNELSOURCES_H_
+
+/* -------------------------------------------------------------------------- *
+ *                          OpenMM Nonbonded Slicing                          *
+ *                          ========================                          *
+ *                                                                            *
+ * An OpenMM plugin for slicing nonbonded potential energy calculations.      *
+ *                                                                            *
+ * Copyright (c) 2022 Charlles Abreu                                          *
+ * https://github.com/craabreu/openmm-nonbonded-slicing                       *
+ * -------------------------------------------------------------------------- */
+
+#include <string>
+
+namespace NonbondedSlicing {
+
+/**
+ * This class is a central holding place for the source code of common kernels.
+ * The CMake build script inserts declarations into it based on the .cc files in the
+ * kernels subfolder.
+ */
+
+class CommonNonbondedSlicingKernelSources {
+public:
+@KERNEL_FILE_DECLARATIONS@
+};
+
+} // namespace NonbondedSlicing
+
+#endif /*OPENMM_COMMONNONBONDED_SLICINGKERNELSOURCES_H_*/
