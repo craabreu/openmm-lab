@@ -1,7 +1,7 @@
 MIT License
 ===========
 
-Copyright (c) 2022 Charlles Abreu
+Copyright (c) 2023 Charlles Abreu
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +32,7 @@ Simbios, the NIH National Center for Physics-Based Simulation of
 Biological Structures at Stanford, funded under the NIH Roadmap for
 Medical Research, grant U54 GM072970. See https://simtk.org.
 
-Portions copyright (c) 2014-2022 Stanford University and the Authors.
+Portions copyright (c) 2014-2023 Stanford University and the Authors.
 
 Authors: Peter Eastman
 

@@ -2,22 +2,7 @@
 Overview
 ========
 
-This OpenMM_ plugin implements a sliced variant of OpenMM_'s NonbondedForce class.
-By partitioning all particles among $n$ disjoint subsets, the total potential energy becomes a linear
-combination of contributions from pairs of subsets like
-
-.. math::
-   E = \sum_{I=0}^{n-1} \sum_{J=I}^{n-1} (\lambda^{vdW}_{I,J}E^{vdW}_{I,J}+\lambda^{elec}_{I,J}E^{elec}_{I,J}),
-
-where each slice is defined by subsets *I* and *J*, superscripts *vdW* and *elec* denote van
-der Waals and electrostatic contributions, :math:`E_{I,J}` is the potential energy of all particle pairs
-formed by one particle in subset *I* and one in subset *J*, and :math:`\lambda_{I,J}` is a scaling parameter.
-
-By default, all scaling parameters are constant and equal to 1. However, the user can turn selected
-scaling parameters into variables and store their values in :OpenMM:`Context` global parameters. Derivatives
-with respect to these variables can be requested and used, for instance, to report individual energy
-slice contributions or sums thereof via :OpenMM:`Context`'s ``getState`` method with option
-``getParameterDerivatives=True``.
+This OpenMM_ plugin is a laboratory for low-level code implementation.
 
 Building the Plugin
 ===================

@@ -6,13 +6,12 @@ OpenMM Laboratory Plugin
 [![Doc](https://github.com/craabreu/openmm-lab/actions/workflows/Doc.yml/badge.svg)](https://github.com/craabreu/openmm-lab/actions/workflows/Doc.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-This [OpenMM] plugin is a laboratory for low-level code implementation for OpenMM.
+This [OpenMM] plugin is a laboratory for low-level code implementation.
 
 Documentation
 =============
 
 Documentation for this plugin is available at [Github Pages](https://craabreu.github.io/openmm-lab/).
-It includes the Python API and the theory for slicing lattice-sum energy contributions.
 
 Installing from Source
 ======================

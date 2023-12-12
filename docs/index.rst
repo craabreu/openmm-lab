@@ -20,7 +20,6 @@ Contents
    :maxdepth: 2
 
    overview
-   theory
    pythonapi/index
    contributing
    authors
