@@ -1,19 +1,19 @@
-#ifndef OPENMM_COMMONNONBONDED_SLICINGKERNELSOURCES_H_
-#define OPENMM_COMMONNONBONDED_SLICINGKERNELSOURCES_H_
+#ifndef OPENMM_COMMONOPENMM_LABKERNELSOURCES_H_
+#define OPENMM_COMMONOPENMM_LABKERNELSOURCES_H_
 
 /* -------------------------------------------------------------------------- *
- *                          OpenMM Nonbonded Slicing                          *
- *                          ========================                          *
+ *                             OpenMM Laboratory                              *
+ *                             =================                              *
  *                                                                            *
- * An OpenMM plugin for slicing nonbonded potential energy calculations.      *
+ * A plugin for testing low-level code implementation for OpenMM.             *
  *                                                                            *
- * Copyright (c) 2022 Charlles Abreu                                          *
- * https://github.com/craabreu/openmm-nonbonded-slicing                       *
+ * Copyright (c) 2023 Charlles Abreu                                          *
+ * https://github.com/craabreu/openmm-lab                                     *
  * -------------------------------------------------------------------------- */
 
 #include <string>
 
-namespace NonbondedSlicing {
+namespace OpenMMLab {
 
 /**
  * This class is a central holding place for the source code of common kernels.
@@ -21,11 +21,11 @@ namespace NonbondedSlicing {
  * kernels subfolder.
  */
 
-class CommonNonbondedSlicingKernelSources {
+class CommonOpenMMLabKernelSources {
 public:
 @KERNEL_FILE_DECLARATIONS@
 };
 
-} // namespace NonbondedSlicing
+} // namespace OpenMMLab
 
-#endif /*OPENMM_COMMONNONBONDED_SLICINGKERNELSOURCES_H_*/
+#endif /*OPENMM_COMMONOPENMM_LABKERNELSOURCES_H_*/

@@ -5,7 +5,7 @@ Energy Slicing Theory
 Potential Energy Slicing
 ========================
 
-This section contains the formulation used to implement the :class:`~nonbondedslicing.SlicedNonbondedForce`
+This section contains the formulation used to implement the :class:`~openmmlab.SlicedNonbondedForce`
 class. For simplicity, the equations presented in here follow the conventional 1-based indexing, whereas
 the class API follows Python's 0-based indexing.
 

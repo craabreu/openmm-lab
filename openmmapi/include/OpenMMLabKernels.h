@@ -1,14 +1,14 @@
-#ifndef NONBONDED_SLICING_KERNELS_H_
-#define NONBONDED_SLICING_KERNELS_H_
+#ifndef OPENMM_LAB_KERNELS_H_
+#define OPENMM_LAB_KERNELS_H_
 
 /* -------------------------------------------------------------------------- *
- *                          OpenMM Nonbonded Slicing                          *
- *                          ========================                          *
+ *                             OpenMM Laboratory                              *
+ *                             =================                              *
  *                                                                            *
- * An OpenMM plugin for slicing nonbonded potential energy calculations.      *
+ * A plugin for testing low-level code implementation for OpenMM.             *
  *                                                                            *
- * Copyright (c) 2022 Charlles Abreu                                          *
- * https://github.com/craabreu/openmm-nonbonded-slicing                       *
+ * Copyright (c) 2023 Charlles Abreu                                          *
+ * https://github.com/craabreu/openmm-lab                                     *
  * -------------------------------------------------------------------------- */
 
 #include "SlicedNonbondedForce.h"
@@ -19,7 +19,7 @@
 
 using namespace OpenMM;
 
-namespace NonbondedSlicing {
+namespace OpenMMLab {
 
 /**
  * This kernel is invoked by SlicedNonbondedForce to calculate the forces acting on the system and the energy of the system.
@@ -84,6 +84,6 @@ public:
     virtual void getLJPMEParameters(double& alpha, int& nx, int& ny, int& nz) const = 0;
 };
 
-} // namespace NonbondedSlicing
+} // namespace OpenMMLab
 
-#endif /*NONBONDED_SLICING_KERNELS_H_*/
+#endif /*OPENMM_LAB_KERNELS_H_*/

@@ -1,4 +1,4 @@
-%module nonbondedslicing
+%module openmmlab
 
 %import(module="openmm") "swig/OpenMMSwigHeaders.i"
 %include "swig/typemaps.i"
@@ -25,12 +25,12 @@ __version__ = "@CMAKE_PROJECT_VERSION@"
  * Add units to function outputs.
 */
 
-%pythonappend NonbondedSlicing::SlicedNonbondedForce::getPMEParametersInContext(
+%pythonappend OpenMMLab::SlicedNonbondedForce::getPMEParametersInContext(
         const openMM::Context& context, double& alpha, int& nx, int& ny, int& nz) const %{
     val[0] = unit.Quantity(val[0], 1/unit.nanometers)
 %}
 
-%pythonappend NonbondedSlicing::SlicedNonbondedForce::getLJPMEParametersInContext(
+%pythonappend OpenMMLab::SlicedNonbondedForce::getLJPMEParametersInContext(
         const openMM::Context& context, double& alpha, int& nx, int& ny, int& nz) const %{
     val[0] = unit.Quantity(val[0], 1/unit.nanometers)
 %}
@@ -48,7 +48,7 @@ __version__ = "@CMAKE_PROJECT_VERSION@"
     }
 }
 
-namespace NonbondedSlicing {
+namespace OpenMMLab {
 
 %apply double& OUTPUT {double& alpha};
 %apply int& OUTPUT {int& nx};
@@ -411,12 +411,12 @@ public:
     */
 
     %extend {
-        static NonbondedSlicing::SlicedNonbondedForce& cast(OpenMM::Force& force) {
-            return dynamic_cast<NonbondedSlicing::SlicedNonbondedForce&>(force);
+        static OpenMMLab::SlicedNonbondedForce& cast(OpenMM::Force& force) {
+            return dynamic_cast<OpenMMLab::SlicedNonbondedForce&>(force);
         }
 
         static bool isinstance(OpenMM::Force& force) {
-            return (dynamic_cast<NonbondedSlicing::SlicedNonbondedForce*>(&force) != NULL);
+            return (dynamic_cast<OpenMMLab::SlicedNonbondedForce*>(&force) != NULL);
         }
     }
 };

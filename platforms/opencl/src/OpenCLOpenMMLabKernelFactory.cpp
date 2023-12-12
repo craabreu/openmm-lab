@@ -1,19 +1,19 @@
 /* -------------------------------------------------------------------------- *
- *                              OpenMMNonbondedSlicing                                   *
+ *                              OpenMMOpenMMLab                                   *
  * -------------------------------------------------------------------------- */
 
 #include <exception>
 
-#include "OpenCLNonbondedSlicingKernelFactory.h"
-#include "OpenCLNonbondedSlicingKernels.h"
-#include "OpenCLParallelNonbondedSlicingKernels.h"
-#include "CommonNonbondedSlicingKernels.h"
+#include "OpenCLOpenMMLabKernelFactory.h"
+#include "OpenCLOpenMMLabKernels.h"
+#include "OpenCLParallelOpenMMLabKernels.h"
+#include "CommonOpenMMLabKernels.h"
 #include "openmm/opencl/OpenCLContext.h"
 #include "openmm/internal/windowsExport.h"
 #include "openmm/internal/ContextImpl.h"
 #include "openmm/OpenMMException.h"
 
-using namespace NonbondedSlicing;
+using namespace OpenMMLab;
 using namespace OpenMM;
 
 extern "C" OPENMM_EXPORT void registerPlatforms() {
@@ -22,7 +22,7 @@ extern "C" OPENMM_EXPORT void registerPlatforms() {
 extern "C" OPENMM_EXPORT void registerKernelFactories() {
     try {
         Platform& platform = Platform::getPlatformByName("OpenCL");
-        OpenCLNonbondedSlicingKernelFactory* factory = new OpenCLNonbondedSlicingKernelFactory();
+        OpenCLOpenMMLabKernelFactory* factory = new OpenCLOpenMMLabKernelFactory();
         platform.registerKernelFactory(CalcSlicedNonbondedForceKernel::Name(), factory);
     }
     catch (std::exception ex) {
@@ -30,7 +30,7 @@ extern "C" OPENMM_EXPORT void registerKernelFactories() {
     }
 }
 
-extern "C" OPENMM_EXPORT void registerNonbondedSlicingOpenCLKernelFactories() {
+extern "C" OPENMM_EXPORT void registerOpenMMLabOpenCLKernelFactories() {
     try {
         Platform::getPlatformByName("OpenCL");
     }
@@ -40,7 +40,7 @@ extern "C" OPENMM_EXPORT void registerNonbondedSlicingOpenCLKernelFactories() {
     registerKernelFactories();
 }
 
-KernelImpl* OpenCLNonbondedSlicingKernelFactory::createKernelImpl(std::string name, const Platform& platform, ContextImpl& context) const {
+KernelImpl* OpenCLOpenMMLabKernelFactory::createKernelImpl(std::string name, const Platform& platform, ContextImpl& context) const {
     OpenCLPlatform::PlatformData& data = *static_cast<OpenCLPlatform::PlatformData*>(context.getPlatformData());
     if (data.contexts.size() > 1) {
         if (name == CalcSlicedNonbondedForceKernel::Name())

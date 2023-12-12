@@ -2,23 +2,23 @@
 #define __REFERENCESLICEDPME_H__
 
 /* -------------------------------------------------------------------------- *
- *                          OpenMM Nonbonded Slicing                          *
- *                          ========================                          *
+ *                             OpenMM Laboratory                              *
+ *                             =================                              *
  *                                                                            *
- * An OpenMM plugin for slicing nonbonded potential energy calculations.      *
+ * A plugin for testing low-level code implementation for OpenMM.             *
  *                                                                            *
- * Copyright (c) 2022 Charlles Abreu                                          *
- * https://github.com/craabreu/openmm-nonbonded-slicing                       *
+ * Copyright (c) 2023 Charlles Abreu                                          *
+ * https://github.com/craabreu/openmm-lab                                     *
  * -------------------------------------------------------------------------- */
 
 #include "openmm/Vec3.h"
-#include "internal/windowsExportNonbondedSlicing.h"
+#include "internal/windowsExportOpenMMLab.h"
 #include <vector>
 
 using namespace std;
 using namespace OpenMM;
 
-namespace NonbondedSlicing {
+namespace OpenMMLab {
 
 typedef double rvec[3];
 
@@ -39,7 +39,7 @@ pme_t;
  * pme_order   Interpolation order, almost always 4
  * epsilon_r   Dielectric coefficient, typically 1.0.
  */
-int OPENMM_EXPORT_NONBONDED_SLICING
+int OPENMM_EXPORT_OPENMM_LAB
 pme_init(pme_t* ppme,
          double ewaldcoeff,
          int natoms,
@@ -60,7 +60,7 @@ pme_init(pme_t* ppme,
  * box         Simulation cell dimensions (nm)
  * energy      Total energy (will be written in units of kJ/mol)
  */
-int OPENMM_EXPORT_NONBONDED_SLICING
+int OPENMM_EXPORT_OPENMM_LAB
 pme_exec(pme_t pme,
          const vector<OpenMM::Vec3>& atomCoordinates,
          const vector<int>& atomSubsets,
@@ -83,7 +83,7 @@ pme_exec(pme_t pme,
  * box         Simulation cell dimensions (nm)
  * energy      Total energy (will be written in units of kJ/mol)
  */
-int OPENMM_EXPORT_NONBONDED_SLICING
+int OPENMM_EXPORT_OPENMM_LAB
 pme_exec_dpme(pme_t pme,
          const vector<OpenMM::Vec3>& atomCoordinates,
          const vector<int>& atomSubsets,
@@ -97,7 +97,7 @@ pme_exec_dpme(pme_t pme,
 
 
 /* Release all memory in pme structure */
-int OPENMM_EXPORT_NONBONDED_SLICING
+int OPENMM_EXPORT_OPENMM_LAB
 pme_destroy(pme_t    pme);
 
 } // namespace OpenMM

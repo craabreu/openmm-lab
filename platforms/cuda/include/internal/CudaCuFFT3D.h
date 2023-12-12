@@ -2,13 +2,13 @@
 #define __OPENMM_CUDACUFFT3D_H__
 
 /* -------------------------------------------------------------------------- *
- *                          OpenMM Nonbonded Slicing                          *
- *                          ========================                          *
+ *                             OpenMM Laboratory                              *
+ *                             =================                              *
  *                                                                            *
- * An OpenMM plugin for slicing nonbonded potential energy calculations.      *
+ * A plugin for testing low-level code implementation for OpenMM.             *
  *                                                                            *
- * Copyright (c) 2022 Charlles Abreu                                          *
- * https://github.com/craabreu/openmm-nonbonded-slicing                       *
+ * Copyright (c) 2023 Charlles Abreu                                          *
+ * https://github.com/craabreu/openmm-lab                                     *
  * -------------------------------------------------------------------------- */
 
 #include "internal/CudaFFT3D.h"
@@ -17,7 +17,7 @@
 
 using namespace OpenMM;
 
-namespace NonbondedSlicing {
+namespace OpenMMLab {
 
 /**
  * This class performs three dimensional Fast Fourier Transforms using VkFFT by
@@ -64,6 +64,6 @@ private:
     cufftHandle fftBackward;
 };
 
-} // namespace NonbondedSlicing
+} // namespace OpenMMLab
 
 #endif // __OPENMM_CUDACUFFT3D_H__

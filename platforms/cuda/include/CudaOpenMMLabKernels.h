@@ -1,17 +1,17 @@
-#ifndef CUDA_NONBONDED_SLICING_KERNELS_H_
-#define CUDA_NONBONDED_SLICING_KERNELS_H_
+#ifndef CUDA_OPENMM_LAB_KERNELS_H_
+#define CUDA_OPENMM_LAB_KERNELS_H_
 
 /* -------------------------------------------------------------------------- *
- *                          OpenMM Nonbonded Slicing                          *
- *                          ========================                          *
+ *                             OpenMM Laboratory                              *
+ *                             =================                              *
  *                                                                            *
- * An OpenMM plugin for slicing nonbonded potential energy calculations.      *
+ * A plugin for testing low-level code implementation for OpenMM.             *
  *                                                                            *
- * Copyright (c) 2022 Charlles Abreu                                          *
- * https://github.com/craabreu/openmm-nonbonded-slicing                       *
+ * Copyright (c) 2023 Charlles Abreu                                          *
+ * https://github.com/craabreu/openmm-lab                                     *
  * -------------------------------------------------------------------------- */
 
-#include "NonbondedSlicingKernels.h"
+#include "OpenMMLabKernels.h"
 #include "internal/CudaFFT3D.h"
 #include "internal/CudaCuFFT3D.h"
 #include "internal/CudaVkFFT3D.h"
@@ -25,7 +25,7 @@
 using namespace OpenMM;
 using namespace std;
 
-namespace NonbondedSlicing {
+namespace OpenMMLab {
 
 /**
  * This kernel is invoked by SlicedNonbondedForce to calculate the forces acting on the system.
@@ -201,6 +201,6 @@ public:
     }
 };
 
-} // namespace NonbondedSlicing
+} // namespace OpenMMLab
 
-#endif /*CUDA_NONBONDED_SLICING_KERNELS_H_*/
+#endif /*CUDA_OPENMM_LAB_KERNELS_H_*/

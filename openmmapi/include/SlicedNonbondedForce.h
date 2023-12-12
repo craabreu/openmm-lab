@@ -2,16 +2,16 @@
 #define OPENMM_SLICEDNONBONDEDFORCE_H_
 
 /* -------------------------------------------------------------------------- *
- *                          OpenMM Nonbonded Slicing                          *
- *                          ========================                          *
+ *                             OpenMM Laboratory                              *
+ *                             =================                              *
  *                                                                            *
- * An OpenMM plugin for slicing nonbonded potential energy calculations.      *
+ * A plugin for testing low-level code implementation for OpenMM.             *
  *                                                                            *
- * Copyright (c) 2022 Charlles Abreu                                          *
- * https://github.com/craabreu/openmm-nonbonded-slicing                       *
+ * Copyright (c) 2023 Charlles Abreu                                          *
+ * https://github.com/craabreu/openmm-lab                                     *
  * -------------------------------------------------------------------------- */
 
-#include "internal/windowsExportNonbondedSlicing.h"
+#include "internal/windowsExportOpenMMLab.h"
 #include "openmm/NonbondedForce.h"
 #include "openmm/internal/AssertionUtilities.h"
 #include <map>
@@ -21,9 +21,9 @@ using namespace std;
 
 #define sliceIndex(i, j) (i>j ? i*(i+1)/2+j : j*(j+1)/2+i)
 
-namespace NonbondedSlicing {
+namespace OpenMMLab {
 
-class OPENMM_EXPORT_NONBONDED_SLICING SlicedNonbondedForce : public NonbondedForce {
+class OPENMM_EXPORT_OPENMM_LAB SlicedNonbondedForce : public NonbondedForce {
 public:
     SlicedNonbondedForce(int numSubsets);
     SlicedNonbondedForce(const OpenMM::NonbondedForce& force, int numSubsets);
@@ -96,6 +96,6 @@ public:
     }
 };
 
-} // namespace NonbondedSlicing
+} // namespace OpenMMLab
 
 #endif /*OPENMM_SLICEDNONBONDEDFORCE_H_*/

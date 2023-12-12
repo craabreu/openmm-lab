@@ -1,13 +1,13 @@
 #---------------------------------------------------
-# OpenMM NonbondedSlicing Plugin Reference Platform
+# OpenMM OpenMMLab Plugin Reference Platform
 #----------------------------------------------------
 
 # Collect up information about the version of the OpenMM library we're building
 # and make it available to the code so it can be built into the binaries.
 
-SET(OPENMMNONBONDED_SLICINGREFERENCE_LIBRARY_NAME NonbondedSlicingReference)
+SET(OPENMMOPENMM_LABREFERENCE_LIBRARY_NAME OpenMMLabReference)
 
-SET(SHARED_TARGET ${OPENMMNONBONDED_SLICINGREFERENCE_LIBRARY_NAME})
+SET(SHARED_TARGET ${OPENMMOPENMM_LABREFERENCE_LIBRARY_NAME})
 
 
 # These are all the places to search for header files which are
@@ -42,7 +42,7 @@ INCLUDE_DIRECTORIES(${REFERENCE_INCLUDE_DIR})
 ADD_LIBRARY(${SHARED_TARGET} SHARED ${SOURCE_FILES} ${SOURCE_INCLUDE_FILES} ${API_INCLUDE_FILES})
 
 TARGET_LINK_LIBRARIES(${SHARED_TARGET} OpenMM)
-TARGET_LINK_LIBRARIES(${SHARED_TARGET} debug ${SHARED_NONBONDED_SLICING_TARGET} optimized ${SHARED_NONBONDED_SLICING_TARGET})
+TARGET_LINK_LIBRARIES(${SHARED_TARGET} debug ${SHARED_OPENMM_LAB_TARGET} optimized ${SHARED_OPENMM_LAB_TARGET})
 SET_TARGET_PROPERTIES(${SHARED_TARGET} PROPERTIES
     COMPILE_FLAGS "-DOPENMM_BUILDING_SHARED_LIBRARY ${EXTRA_COMPILE_FLAGS}"
     LINK_FLAGS "${EXTRA_COMPILE_FLAGS}")

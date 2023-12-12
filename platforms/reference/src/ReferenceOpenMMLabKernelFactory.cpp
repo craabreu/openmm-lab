@@ -1,14 +1,14 @@
 /* -------------------------------------------------------------------------- *
- *                              OpenMMNonbondedSlicing                                   *
+ *                              OpenMMOpenMMLab                                   *
  * -------------------------------------------------------------------------- */
 
-#include "ReferenceNonbondedSlicingKernelFactory.h"
-#include "ReferenceNonbondedSlicingKernels.h"
+#include "ReferenceOpenMMLabKernelFactory.h"
+#include "ReferenceOpenMMLabKernels.h"
 #include "openmm/reference/ReferencePlatform.h"
 #include "openmm/internal/ContextImpl.h"
 #include "openmm/OpenMMException.h"
 
-using namespace NonbondedSlicing;
+using namespace OpenMMLab;
 using namespace OpenMM;
 
 extern "C" OPENMM_EXPORT void registerPlatforms() {
@@ -18,17 +18,17 @@ extern "C" OPENMM_EXPORT void registerKernelFactories() {
     for (int i = 0; i < Platform::getNumPlatforms(); i++) {
         Platform& platform = Platform::getPlatform(i);
         if (dynamic_cast<ReferencePlatform*>(&platform) != NULL) {
-            ReferenceNonbondedSlicingKernelFactory* factory = new ReferenceNonbondedSlicingKernelFactory();
+            ReferenceOpenMMLabKernelFactory* factory = new ReferenceOpenMMLabKernelFactory();
             platform.registerKernelFactory(CalcSlicedNonbondedForceKernel::Name(), factory);
         }
     }
 }
 
-extern "C" OPENMM_EXPORT void registerNonbondedSlicingReferenceKernelFactories() {
+extern "C" OPENMM_EXPORT void registerOpenMMLabReferenceKernelFactories() {
     registerKernelFactories();
 }
 
-KernelImpl* ReferenceNonbondedSlicingKernelFactory::createKernelImpl(std::string name, const Platform& platform, ContextImpl& context) const {
+KernelImpl* ReferenceOpenMMLabKernelFactory::createKernelImpl(std::string name, const Platform& platform, ContextImpl& context) const {
     ReferencePlatform::PlatformData& data = *static_cast<ReferencePlatform::PlatformData*>(context.getPlatformData());
     if (name == CalcSlicedNonbondedForceKernel::Name())
         return new ReferenceCalcSlicedNonbondedForceKernel(name, platform);

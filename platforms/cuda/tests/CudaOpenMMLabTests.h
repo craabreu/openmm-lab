@@ -1,11 +1,11 @@
 /* -------------------------------------------------------------------------- *
- *                          OpenMM Nonbonded Slicing                          *
- *                          ========================                          *
+ *                             OpenMM Laboratory                              *
+ *                             =================                              *
  *                                                                            *
- * An OpenMM plugin for slicing nonbonded potential energy calculations.      *
+ * A plugin for testing low-level code implementation for OpenMM.             *
  *                                                                            *
- * Copyright (c) 2022 Charlles Abreu                                          *
- * https://github.com/craabreu/openmm-nonbonded-slicing                       *
+ * Copyright (c) 2023 Charlles Abreu                                          *
+ * https://github.com/craabreu/openmm-lab                                     *
  * -------------------------------------------------------------------------- */
 
 #ifdef WIN32
@@ -13,12 +13,12 @@
 #endif
 #include "openmm/cuda/CudaPlatform.h"
 
-extern "C" OPENMM_EXPORT void registerNonbondedSlicingCudaKernelFactories();
+extern "C" OPENMM_EXPORT void registerOpenMMLabCudaKernelFactories();
 
 OpenMM::CudaPlatform platform;
 
 void initializeTests(int argc, char* argv[]) {
-    registerNonbondedSlicingCudaKernelFactories();
+    registerOpenMMLabCudaKernelFactories();
     platform = dynamic_cast<OpenMM::CudaPlatform&>(OpenMM::Platform::getPlatformByName("CUDA"));
     if (argc > 1)
         platform.setPropertyDefaultValue("Precision", std::string(argv[1]));

@@ -1,23 +1,23 @@
-#ifndef COMMON_NONBONDED_SLICING_KERNELS_H_
-#define COMMON_NONBONDED_SLICING_KERNELS_H_
+#ifndef COMMON_OPENMM_LAB_KERNELS_H_
+#define COMMON_OPENMM_LAB_KERNELS_H_
 
 /* -------------------------------------------------------------------------- *
- *                          OpenMM Nonbonded Slicing                          *
- *                          ========================                          *
+ *                             OpenMM Laboratory                              *
+ *                             =================                              *
  *                                                                            *
- * An OpenMM plugin for slicing nonbonded potential energy calculations.      *
+ * A plugin for testing low-level code implementation for OpenMM.             *
  *                                                                            *
- * Copyright (c) 2022 Charlles Abreu                                          *
- * https://github.com/craabreu/openmm-nonbonded-slicing                       *
+ * Copyright (c) 2023 Charlles Abreu                                          *
+ * https://github.com/craabreu/openmm-lab                                     *
  * -------------------------------------------------------------------------- */
 
-#include "NonbondedSlicingKernels.h"
+#include "OpenMMLabKernels.h"
 #include "openmm/common/ComputeContext.h"
 #include "openmm/common/ComputeArray.h"
 
-namespace NonbondedSlicing {
+namespace OpenMMLab {
 
 
-} // namespace NonbondedSlicing
+} // namespace OpenMMLab
 
-#endif /*COMMON_NONBONDED_SLICING_KERNELS_H_*/
+#endif /*COMMON_OPENMM_LAB_KERNELS_H_*/

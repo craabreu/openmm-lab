@@ -1,16 +1,16 @@
 /* -------------------------------------------------------------------------- *
- *                          OpenMM Nonbonded Slicing                          *
- *                          ========================                          *
+ *                             OpenMM Laboratory                              *
+ *                             =================                              *
  *                                                                            *
- * An OpenMM plugin for slicing nonbonded potential energy calculations.      *
+ * A plugin for testing low-level code implementation for OpenMM.             *
  *                                                                            *
- * Copyright (c) 2022 Charlles Abreu                                          *
- * https://github.com/craabreu/openmm-nonbonded-slicing                       *
+ * Copyright (c) 2023 Charlles Abreu                                          *
+ * https://github.com/craabreu/openmm-lab                                     *
  * -------------------------------------------------------------------------- */
 
-#include "OpenCLNonbondedSlicingKernels.h"
-#include "OpenCLNonbondedSlicingKernelSources.h"
-#include "CommonNonbondedSlicingKernelSources.h"
+#include "OpenCLOpenMMLabKernels.h"
+#include "OpenCLOpenMMLabKernelSources.h"
+#include "CommonOpenMMLabKernelSources.h"
 #include "SlicedNonbondedForce.h"
 #include "internal/SlicedNonbondedForceImpl.h"
 #include "openmm/internal/ContextImpl.h"
@@ -21,7 +21,7 @@
 #include <algorithm>
 #include <iostream>
 
-using namespace NonbondedSlicing;
+using namespace OpenMMLab;
 using namespace OpenMM;
 using namespace std;
 
@@ -161,7 +161,7 @@ public:
         replacements["USE_LJPME"] = doLJPME ? "1" : "0";
         replacements["HAS_DERIVATIVES"] = hasDerivatives ? "1" : "0";
         replacements["ADD_DERIVATIVES"] = code.str();
-        string source = cl.replaceStrings(CommonNonbondedSlicingKernelSources::pmeAddEnergy, replacements);
+        string source = cl.replaceStrings(CommonOpenMMLabKernelSources::pmeAddEnergy, replacements);
         cl::Program program = cl.createProgram(source, defines);
         addEnergyKernel = cl::Kernel(program, "addEnergy");
         int arg = 0;
@@ -271,7 +271,7 @@ void OpenCLCalcSlicedNonbondedForceKernel::initialize(const System& system, cons
         ;
     string prefix = "slicedNonbonded"+cl.intToString(forceIndex)+"_";
 
-    realToFixedPoint = Platform::getOpenMMVersion()[0] == '7' ? OpenCLNonbondedSlicingKernelSources::realToFixedPoint : "";
+    realToFixedPoint = Platform::getOpenMMVersion()[0] == '7' ? OpenCLOpenMMLabKernelSources::realToFixedPoint : "";
 
     int numParticles = force.getNumParticles();
     numSubsets = force.getNumSubsets();
@@ -436,7 +436,7 @@ void OpenCLCalcSlicedNonbondedForceKernel::initialize(const System& system, cons
             replacements["EXP_COEFFICIENT"] = cl.doubleToString(-1.0/(4.0*alpha*alpha));
             replacements["ONE_4PI_EPS0"] = cl.doubleToString(ONE_4PI_EPS0);
             replacements["M_PI"] = cl.doubleToString(M_PI);
-            cl::Program program = cl.createProgram(realToFixedPoint+CommonNonbondedSlicingKernelSources::ewald, replacements);
+            cl::Program program = cl.createProgram(realToFixedPoint+CommonOpenMMLabKernelSources::ewald, replacements);
             ewaldSumsKernel = cl::Kernel(program, "calculateEwaldCosSinSums");
             ewaldForcesKernel = cl::Kernel(program, "calculateEwaldForces");
             int elementSize = (cl.getUseDoublePrecision() ? sizeof(mm_double2) : sizeof(mm_float2));
@@ -676,13 +676,13 @@ void OpenCLCalcSlicedNonbondedForceKernel::initialize(const System& system, cons
             }
             replacements["COMPUTE_DERIVATIVES"] = code.str();
             if (force.getIncludeDirectSpace())
-                cl.getBondedUtilities().addInteraction(atoms, cl.replaceStrings(CommonNonbondedSlicingKernelSources::pmeExclusions, replacements), force.getForceGroup());
+                cl.getBondedUtilities().addInteraction(atoms, cl.replaceStrings(CommonOpenMMLabKernelSources::pmeExclusions, replacements), force.getForceGroup());
         }
     }
 
     // Add the interaction to the default nonbonded kernel.
 
-    string source = cl.replaceStrings(CommonNonbondedSlicingKernelSources::coulombLennardJones, defines);
+    string source = cl.replaceStrings(CommonOpenMMLabKernelSources::coulombLennardJones, defines);
     charges.initialize(cl, cl.getPaddedNumAtoms(), cl.getUseDoublePrecision() ? sizeof(double) : sizeof(float), "charges");
     baseParticleParams.initialize<mm_float4>(cl, cl.getPaddedNumAtoms(), "baseParticleParams");
     baseParticleParams.upload(baseParticleParamVec);
@@ -762,7 +762,7 @@ void OpenCLCalcSlicedNonbondedForceKernel::initialize(const System& system, cons
         }
         replacements["COMPUTE_DERIVATIVES"] = code.str();
         if (force.getIncludeDirectSpace())
-            cl.getBondedUtilities().addInteraction(atoms, cl.replaceStrings(CommonNonbondedSlicingKernelSources::nonbondedExceptions, replacements), force.getForceGroup());
+            cl.getBondedUtilities().addInteraction(atoms, cl.replaceStrings(CommonOpenMMLabKernelSources::nonbondedExceptions, replacements), force.getForceGroup());
     }
 
     // Initialize parameter offsets.
@@ -842,7 +842,7 @@ void OpenCLCalcSlicedNonbondedForceKernel::initialize(const System& system, cons
 
     // Initialize the kernel for updating parameters.
 
-    cl::Program program = cl.createProgram(CommonNonbondedSlicingKernelSources::nonbondedParameters, paramsDefines);
+    cl::Program program = cl.createProgram(CommonOpenMMLabKernelSources::nonbondedParameters, paramsDefines);
     computeParamsKernel = cl::Kernel(program, "computeParameters");
     computeExclusionParamsKernel = cl::Kernel(program, "computeExclusionParameters");
     info = new ForceInfo(0, force);
@@ -901,7 +901,7 @@ double OpenCLCalcSlicedNonbondedForceKernel::execute(ContextImpl& context, bool 
 
             map<string, string> replacements;
             replacements["CHARGE"] = (usePosqCharges ? "pos.w" : "charges[atom]");
-            cl::Program program = cl.createProgram(realToFixedPoint+cl.replaceStrings(CommonNonbondedSlicingKernelSources::pme, replacements), pmeDefines);
+            cl::Program program = cl.createProgram(realToFixedPoint+cl.replaceStrings(CommonOpenMMLabKernelSources::pme, replacements), pmeDefines);
             pmeGridIndexKernel = cl::Kernel(program, "findAtomGridIndex");
             pmeSpreadChargeKernel = cl::Kernel(program, "gridSpreadCharge");
             pmeConvolutionKernel = cl::Kernel(program, "reciprocalConvolution");
@@ -947,7 +947,7 @@ double OpenCLCalcSlicedNonbondedForceKernel::execute(ContextImpl& context, bool 
                 pmeDefines["RECIP_EXP_FACTOR"] = cl.doubleToString(M_PI*M_PI/(dispersionAlpha*dispersionAlpha));
                 pmeDefines["USE_LJPME"] = "1";
                 pmeDefines["CHARGE_FROM_SIGEPS"] = "1";
-                program = cl.createProgram(realToFixedPoint+CommonNonbondedSlicingKernelSources::pme, pmeDefines);
+                program = cl.createProgram(realToFixedPoint+CommonOpenMMLabKernelSources::pme, pmeDefines);
                 pmeDispersionGridIndexKernel = cl::Kernel(program, "findAtomGridIndex");
                 pmeDispersionSpreadChargeKernel = cl::Kernel(program, "gridSpreadCharge");
                 pmeDispersionConvolutionKernel = cl::Kernel(program, "reciprocalConvolution");

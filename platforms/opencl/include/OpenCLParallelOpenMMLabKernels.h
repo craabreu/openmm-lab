@@ -1,22 +1,22 @@
-#ifndef OPENMM_OPENCLPARALLELNONBONDED_SLICINGKERNELS_H_
-#define OPENMM_OPENCLPARALLELNONBONDED_SLICINGKERNELS_H_
+#ifndef OPENMM_OPENCLPARALLELOPENMM_LABKERNELS_H_
+#define OPENMM_OPENCLPARALLELOPENMM_LABKERNELS_H_
 
 /* -------------------------------------------------------------------------- *
- *                          OpenMM Nonbonded Slicing                          *
- *                          ========================                          *
+ *                             OpenMM Laboratory                              *
+ *                             =================                              *
  *                                                                            *
- * An OpenMM plugin for slicing nonbonded potential energy calculations.      *
+ * A plugin for testing low-level code implementation for OpenMM.             *
  *                                                                            *
- * Copyright (c) 2022 Charlles Abreu                                          *
- * https://github.com/craabreu/openmm-nonbonded-slicing                       *
+ * Copyright (c) 2023 Charlles Abreu                                          *
+ * https://github.com/craabreu/openmm-lab                                     *
  * -------------------------------------------------------------------------- */
 
-#include "OpenCLNonbondedSlicingKernels.h"
-#include "CommonNonbondedSlicingKernels.h"
+#include "OpenCLOpenMMLabKernels.h"
+#include "CommonOpenMMLabKernels.h"
 #include "openmm/opencl/OpenCLPlatform.h"
 #include "openmm/opencl/OpenCLContext.h"
 
-namespace NonbondedSlicing {
+namespace OpenMMLab {
 
 /**
  * This kernel is invoked by SlicedNonbondedForce to calculate the forces acting on the system.
@@ -76,6 +76,6 @@ private:
     std::vector<Kernel> kernels;
 };
 
-} // namespace NonbondedSlicing
+} // namespace OpenMMLab
 
-#endif /*OPENMM_OPENCLPARALLELNONBONDED_SLICINGKERNELS_H_*/
+#endif /*OPENMM_OPENCLPARALLELOPENMM_LABKERNELS_H_*/

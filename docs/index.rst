@@ -1,16 +1,16 @@
 ========================
-OpenMM Nonbonded Slicing
+OpenMM Laboratory
 ========================
 
 .. image:: https://badgen.net/badge/icon/github?icon=github&label
-   :target: https://github.com/craabreu/openmm-nonbonded-slicing
+   :target: https://github.com/craabreu/openmm-lab
 
 .. image:: https://img.shields.io/badge/License-MIT-green.svg
-   :target: https://github.com/craabreu/openmm-nonbonded-slicing/blob/main/LICENSE.md
+   :target: https://github.com/craabreu/openmm-lab/blob/main/LICENSE.md
 
 .. raw:: html
 
-   <a class="github-button" href="https://github.com/craabreu/openmm-nonbonded-slicing" data-show-count="true" aria-label="Star craabreu/openmm-nonbonded-slicing on GitHub">Star</a>
+   <a class="github-button" href="https://github.com/craabreu/openmm-lab" data-show-count="true" aria-label="Star craabreu/openmm-lab on GitHub">Star</a>
 
 
 Contents

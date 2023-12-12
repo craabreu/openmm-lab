@@ -1,11 +1,11 @@
 /* -------------------------------------------------------------------------- *
- *                          OpenMM Nonbonded Slicing                          *
- *                          ========================                          *
+ *                             OpenMM Laboratory                              *
+ *                             =================                              *
  *                                                                            *
- * An OpenMM plugin for slicing nonbonded potential energy calculations.      *
+ * A plugin for testing low-level code implementation for OpenMM.             *
  *                                                                            *
- * Copyright (c) 2022 Charlles Abreu                                          *
- * https://github.com/craabreu/openmm-nonbonded-slicing                       *
+ * Copyright (c) 2023 Charlles Abreu                                          *
+ * https://github.com/craabreu/openmm-lab                                     *
  * -------------------------------------------------------------------------- */
 
 #include "SlicedNonbondedForce.h"
@@ -21,7 +21,7 @@
 #include <iomanip>
 #include <vector>
 
-using namespace NonbondedSlicing;
+using namespace OpenMMLab;
 using namespace OpenMM;
 using namespace std;
 
@@ -984,7 +984,7 @@ void testDirectAndReciprocal() {
     assertEqualTo(e3, e4, 1e-4);
 }
 
-void testNonbondedSlicing(OpenMM_SFMT::SFMT& sfmt, NonbondedForce::NonbondedMethod method, bool exceptions, bool lj) {
+void testOpenMMLab(OpenMM_SFMT::SFMT& sfmt, NonbondedForce::NonbondedMethod method, bool exceptions, bool lj) {
     bool includeLJ = lj;
     bool includeCoulomb = !lj;
 
@@ -1331,7 +1331,7 @@ int main(int argc, char* argv[]) {
         for (auto method : nonbondedMethods)
             for (auto exceptions : booleanValues) {
                 for (auto lj : booleanValues)
-                    testNonbondedSlicing(sfmt, method, exceptions, lj);
+                    testOpenMMLab(sfmt, method, exceptions, lj);
                 testScalingParameterSeparation(sfmt, method, exceptions);
             }
     }

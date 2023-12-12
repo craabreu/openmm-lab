@@ -1,5 +1,5 @@
-#ifndef OPENMM_WINDOWSEXPORTNONBONDED_SLICING_H_
-#define OPENMM_WINDOWSEXPORTNONBONDED_SLICING_H_
+#ifndef OPENMM_WINDOWSEXPORTOPENMM_LAB_H_
+#define OPENMM_WINDOWSEXPORTOPENMM_LAB_H_
 
 /*
  * Shared libraries are messy in Visual Studio. We have to distinguish three
@@ -28,14 +28,14 @@
     // Keep MS VC++ quiet about lack of dll export of private members.
     #pragma warning(disable:4251)
     #if defined(PLUGIN_BUILDING_SHARED_LIBRARY)
-        #define OPENMM_EXPORT_NONBONDED_SLICING __declspec(dllexport)
-    #elif defined(PLUGIN_BUILDING_STATIC_LIBRARY) || defined(NONBONDED_SLICING_USE_STATIC_LIBRARIES)
-        #define OPENMM_EXPORT_NONBONDED_SLICING
+        #define OPENMM_EXPORT_OPENMM_LAB __declspec(dllexport)
+    #elif defined(PLUGIN_BUILDING_STATIC_LIBRARY) || defined(OPENMM_LAB_USE_STATIC_LIBRARIES)
+        #define OPENMM_EXPORT_OPENMM_LAB
     #else
-        #define OPENMM_EXPORT_NONBONDED_SLICING __declspec(dllimport)   // i.e., a client of a shared library
+        #define OPENMM_EXPORT_OPENMM_LAB __declspec(dllimport)   // i.e., a client of a shared library
     #endif
 #else
-    #define OPENMM_EXPORT_NONBONDED_SLICING // Linux, Mac
+    #define OPENMM_EXPORT_OPENMM_LAB // Linux, Mac
 #endif
 
-#endif // OPENMM_WINDOWSEXPORTNONBONDED_SLICING_H_
+#endif // OPENMM_WINDOWSEXPORTOPENMM_LAB_H_

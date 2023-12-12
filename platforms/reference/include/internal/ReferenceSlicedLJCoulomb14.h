@@ -1,25 +1,25 @@
 #ifndef __ReferenceSlicedLJCoulomb14_H__
 #define __ReferenceSlicedLJCoulomb14_H__
 /* -------------------------------------------------------------------------- *
- *                          OpenMM Nonbonded Slicing                          *
- *                          ========================                          *
+ *                             OpenMM Laboratory                              *
+ *                             =================                              *
  *                                                                            *
- * An OpenMM plugin for slicing nonbonded potential energy calculations.      *
+ * A plugin for testing low-level code implementation for OpenMM.             *
  *                                                                            *
- * Copyright (c) 2022 Charlles Abreu                                          *
- * https://github.com/craabreu/openmm-nonbonded-slicing                       *
+ * Copyright (c) 2023 Charlles Abreu                                          *
+ * https://github.com/craabreu/openmm-lab                                     *
  * -------------------------------------------------------------------------- */
 
 #include "openmm/Vec3.h"
-#include "internal/windowsExportNonbondedSlicing.h"
+#include "internal/windowsExportOpenMMLab.h"
 #include <vector>
 
 using namespace std;
 using namespace OpenMM;
 
-namespace NonbondedSlicing {
+namespace OpenMMLab {
 
-class OPENMM_EXPORT_NONBONDED_SLICING ReferenceSlicedLJCoulomb14 {
+class OPENMM_EXPORT_OPENMM_LAB ReferenceSlicedLJCoulomb14 {
 
 public:
 
@@ -73,6 +73,6 @@ private:
    OpenMM::Vec3 periodicBoxVectors[3];
 };
 
-} // namespace NonbondedSlicing
+} // namespace OpenMMLab
 
 #endif // __ReferenceSlicedLJCoulomb14_H__

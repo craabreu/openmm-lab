@@ -2,27 +2,27 @@
 #define OPENMM_SLICEDNONBONDEDFORCE_PROXY_H_
 
 /* -------------------------------------------------------------------------- *
- *                          OpenMM Nonbonded Slicing                          *
- *                          ========================                          *
+ *                             OpenMM Laboratory                              *
+ *                             =================                              *
  *                                                                            *
- * An OpenMM plugin for slicing nonbonded potential energy calculations.      *
+ * A plugin for testing low-level code implementation for OpenMM.             *
  *                                                                            *
- * Copyright (c) 2022 Charlles Abreu                                          *
- * https://github.com/craabreu/openmm-nonbonded-slicing                       *
+ * Copyright (c) 2023 Charlles Abreu                                          *
+ * https://github.com/craabreu/openmm-lab                                     *
  * -------------------------------------------------------------------------- */
 
-#include "internal/windowsExportNonbondedSlicing.h"
+#include "internal/windowsExportOpenMMLab.h"
 #include "openmm/serialization/SerializationProxy.h"
 
 using namespace OpenMM;
 
-namespace NonbondedSlicing {
+namespace OpenMMLab {
 
 /**
  * This is a proxy for serializing SlicedNonbondedForce objects.
  */
 
-class OPENMM_EXPORT_NONBONDED_SLICING SlicedNonbondedForceProxy : public SerializationProxy {
+class OPENMM_EXPORT_OPENMM_LAB SlicedNonbondedForceProxy : public SerializationProxy {
 public:
     SlicedNonbondedForceProxy();
     void serialize(const void* object, SerializationNode& node) const;

@@ -2,13 +2,13 @@
 #define OPENMM_SLICEDNONBONDEDFORCEIMPL_H_
 
 /* -------------------------------------------------------------------------- *
- *                          OpenMM Nonbonded Slicing                          *
- *                          ========================                          *
+ *                             OpenMM Laboratory                              *
+ *                             =================                              *
  *                                                                            *
- * An OpenMM plugin for slicing nonbonded potential energy calculations.      *
+ * A plugin for testing low-level code implementation for OpenMM.             *
  *                                                                            *
- * Copyright (c) 2022 Charlles Abreu                                          *
- * https://github.com/craabreu/openmm-nonbonded-slicing                       *
+ * Copyright (c) 2023 Charlles Abreu                                          *
+ * https://github.com/craabreu/openmm-lab                                     *
  * -------------------------------------------------------------------------- */
 
 #include "SlicedNonbondedForce.h"
@@ -20,13 +20,13 @@
 
 using namespace OpenMM;
 
-namespace NonbondedSlicing {
+namespace OpenMMLab {
 
 /**
  * This is the internal implementation of SlicedNonbondedForce.
  */
 
-class OPENMM_EXPORT_NONBONDED_SLICING SlicedNonbondedForceImpl : public NonbondedForceImpl {
+class OPENMM_EXPORT_OPENMM_LAB SlicedNonbondedForceImpl : public NonbondedForceImpl {
 public:
     SlicedNonbondedForceImpl(const SlicedNonbondedForce& owner);
     ~SlicedNonbondedForceImpl();
@@ -47,6 +47,6 @@ private:
     Kernel kernel;
 };
 
-} // namespace NonbondedSlicing
+} // namespace OpenMMLab
 
 #endif /*OPENMM_SLICEDNONBONDEDFORCEIMPL_H_*/

@@ -1,32 +1,17 @@
-OpenMM Nonbonded Slicing Plugin
-===============================
+OpenMM Laboratory Plugin
+========================
 
-[![Linux](https://github.com/craabreu/openmm-nonbonded-slicing/actions/workflows/Linux.yml/badge.svg)](https://github.com/craabreu/openmm-nonbonded-slicing/actions/workflows/Linux.yml)
-[![MacOS](https://github.com/craabreu/openmm-nonbonded-slicing/actions/workflows/MacOS.yml/badge.svg)](https://github.com/craabreu/openmm-nonbonded-slicing/actions/workflows/MacOS.yml)
-[![Doc](https://github.com/craabreu/openmm-nonbonded-slicing/actions/workflows/Doc.yml/badge.svg)](https://github.com/craabreu/openmm-nonbonded-slicing/actions/workflows/Doc.yml)
+[![Linux](https://github.com/craabreu/openmm-lab/actions/workflows/Linux.yml/badge.svg)](https://github.com/craabreu/openmm-lab/actions/workflows/Linux.yml)
+[![MacOS](https://github.com/craabreu/openmm-lab/actions/workflows/MacOS.yml/badge.svg)](https://github.com/craabreu/openmm-lab/actions/workflows/MacOS.yml)
+[![Doc](https://github.com/craabreu/openmm-lab/actions/workflows/Doc.yml/badge.svg)](https://github.com/craabreu/openmm-lab/actions/workflows/Doc.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-This [OpenMM] plugin contains the **SlicedNonbondedForce** class, a variant of OpenMM's [NonbondedForce].
-By partitioning all particles among $n$ disjoint subsets, the total potential energy becomes a linear
-combination of contributions from pairs of subsets like
-
-```math
-E = \sum_{I=0}^{n-1} \sum_{J=I}^{n-1} \left( \lambda^{vdW}_{I,J}E^{vdW}_{I,J}+\lambda^{elec}_{I,J}E^{elec}_{I,J} \right)
-```
-
-where each slice is defined by subsets $I$ and $J$, superscripts _vdW_ and _elec_ denote van
-der Waals and electrostatic contributions, $E_{I,J}$ is the potential energy of all particle pairs
-formed by one particle in subset $I$ and one in subset $J$, and $\lambda_{I,J}$ is a scaling parameter.
-
-By default, all scaling parameters are constant and equal to 1. However, the user can turn selected
-scaling parameters into variables and store their values in [Context] global parameters. Derivatives
-with respect to these variables can be requested and used, for instance, to report individual energy
-slice contributions or sums thereof via [getState] with option `getParameterDerivatives=True`.
+This [OpenMM] plugin is a laboratory for low-level code implementation for OpenMM.
 
 Documentation
 =============
 
-Documentation for this plugin is available at [Github Pages](https://craabreu.github.io/openmm-nonbonded-slicing/).
+Documentation for this plugin is available at [Github Pages](https://craabreu.github.io/openmm-lab/).
 It includes the Python API and the theory for slicing lattice-sum energy contributions.
 
 Installing from Source
@@ -71,7 +56,7 @@ Once you do that, you can use the plugin from your Python scripts:
 
 ```py
     import openmm as mm
-    import nonbondedslicing as nbs
+    import openmmlab as nbs
     system = mm.System()
     force = nbs.SlicedNonbondedForce(2)
     system.addForce(force)

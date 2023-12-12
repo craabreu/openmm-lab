@@ -1,14 +1,14 @@
-#ifndef OPENMM_CUDANONBONDED_SLICINGKERNELFACTORY_H_
-#define OPENMM_CUDANONBONDED_SLICINGKERNELFACTORY_H_
+#ifndef OPENMM_CUDAOPENMM_LABKERNELFACTORY_H_
+#define OPENMM_CUDAOPENMM_LABKERNELFACTORY_H_
 
 /* -------------------------------------------------------------------------- *
- *                          OpenMM Nonbonded Slicing                          *
- *                          ========================                          *
+ *                             OpenMM Laboratory                              *
+ *                             =================                              *
  *                                                                            *
- * An OpenMM plugin for slicing nonbonded potential energy calculations.      *
+ * A plugin for testing low-level code implementation for OpenMM.             *
  *                                                                            *
- * Copyright (c) 2022 Charlles Abreu                                          *
- * https://github.com/craabreu/openmm-nonbonded-slicing                       *
+ * Copyright (c) 2023 Charlles Abreu                                          *
+ * https://github.com/craabreu/openmm-lab                                     *
  * -------------------------------------------------------------------------- */
 
 #include "openmm/KernelFactory.h"
@@ -16,14 +16,14 @@
 namespace OpenMM {
 
 /**
- * This KernelFactory creates kernels for the CUDA implementation of the NonbondedSlicing plugin.
+ * This KernelFactory creates kernels for the CUDA implementation of the OpenMMLab plugin.
  */
 
-class CudaNonbondedSlicingKernelFactory : public KernelFactory {
+class CudaOpenMMLabKernelFactory : public KernelFactory {
 public:
     KernelImpl* createKernelImpl(std::string name, const Platform& platform, ContextImpl& context) const;
 };
 
 } // namespace OpenMM
 
-#endif /*OPENMM_CUDANONBONDED_SLICINGKERNELFACTORY_H_*/
+#endif /*OPENMM_CUDAOPENMM_LABKERNELFACTORY_H_*/

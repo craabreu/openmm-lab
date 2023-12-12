@@ -1,11 +1,11 @@
 /* -------------------------------------------------------------------------- *
- *                          OpenMM Nonbonded Slicing                          *
- *                          ========================                          *
+ *                             OpenMM Laboratory                              *
+ *                             =================                              *
  *                                                                            *
- * An OpenMM plugin for slicing nonbonded potential energy calculations.      *
+ * A plugin for testing low-level code implementation for OpenMM.             *
  *                                                                            *
- * Copyright (c) 2022 Charlles Abreu                                          *
- * https://github.com/craabreu/openmm-nonbonded-slicing                       *
+ * Copyright (c) 2023 Charlles Abreu                                          *
+ * https://github.com/craabreu/openmm-lab                                     *
  * -------------------------------------------------------------------------- */
 
 #ifdef WIN32
@@ -13,12 +13,12 @@
 #endif
 #include "openmm/reference/ReferencePlatform.h"
 
-extern "C" OPENMM_EXPORT void registerNonbondedSlicingReferenceKernelFactories();
+extern "C" OPENMM_EXPORT void registerOpenMMLabReferenceKernelFactories();
 
 OpenMM::ReferencePlatform platform;
 
 void initializeTests(int argc, char* argv[]) {
-    registerNonbondedSlicingReferenceKernelFactories();
+    registerOpenMMLabReferenceKernelFactories();
     platform = dynamic_cast<OpenMM::ReferencePlatform&>(OpenMM::Platform::getPlatformByName("Reference"));
     if (argc > 1)
         platform.setPropertyDefaultValue("Precision", std::string(argv[1]));

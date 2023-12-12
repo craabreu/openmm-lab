@@ -1,17 +1,17 @@
-#ifndef REFERENCE_NONBONDED_SLICING_KERNELS_H_
-#define REFERENCE_NONBONDED_SLICING_KERNELS_H_
+#ifndef REFERENCE_OPENMM_LAB_KERNELS_H_
+#define REFERENCE_OPENMM_LAB_KERNELS_H_
 
 /* -------------------------------------------------------------------------- *
- *                          OpenMM Nonbonded Slicing                          *
- *                          ========================                          *
+ *                             OpenMM Laboratory                              *
+ *                             =================                              *
  *                                                                            *
- * An OpenMM plugin for slicing nonbonded potential energy calculations.      *
+ * A plugin for testing low-level code implementation for OpenMM.             *
  *                                                                            *
- * Copyright (c) 2022 Charlles Abreu                                          *
- * https://github.com/craabreu/openmm-nonbonded-slicing                       *
+ * Copyright (c) 2023 Charlles Abreu                                          *
+ * https://github.com/craabreu/openmm-lab                                     *
  * -------------------------------------------------------------------------- */
 
-#include "NonbondedSlicingKernels.h"
+#include "OpenMMLabKernels.h"
 #include "openmm/Platform.h"
 #include "openmm/reference/ReferenceNeighborList.h"
 #include <vector>
@@ -20,7 +20,7 @@
 
 using namespace std;
 
-namespace NonbondedSlicing {
+namespace OpenMMLab {
 
 /**
  * This kernel is invoked by SlicedNonbondedForce to calculate the forces acting on the system.
@@ -105,6 +105,6 @@ public:
     ScalingParameterInfo(string name, bool hasDerivative) : name(name), hasDerivative(hasDerivative) {}
 };
 
-} // namespace NonbondedSlicing
+} // namespace OpenMMLab
 
-#endif /*REFERENCE_NONBONDED_SLICING_KERNELS_H_*/
+#endif /*REFERENCE_OPENMM_LAB_KERNELS_H_*/
