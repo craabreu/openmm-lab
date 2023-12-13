@@ -13,7 +13,9 @@
 
 #include "openmm/KernelFactory.h"
 
-namespace OpenMM {
+using namespace OpenMM;
+
+namespace OpenMMLab {
 
 /**
  * This KernelFactory creates kernels for the CUDA implementation of the OpenMMLab plugin.

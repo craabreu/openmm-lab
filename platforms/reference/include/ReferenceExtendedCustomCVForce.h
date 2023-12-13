@@ -20,9 +20,9 @@
 #include <string>
 #include <vector>
 
-using namespace OpenMMLab;
+using namespace OpenMM;
 
-namespace OpenMM {
+namespace OpenMMLab {
 
 class ReferenceExtendedCustomCVForce {
 private:
@@ -66,6 +66,6 @@ public:
                      std::vector<OpenMM::Vec3>& forces, double* totalEnergy, std::map<std::string, double>& energyParamDerivs);
 };
 
-} // namespace OpenMM
+} // namespace OpenMMLab
 
 #endif // __ReferenceExtendedCustomCVForce_H__
