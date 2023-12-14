@@ -12,27 +12,20 @@
 #define __ReferenceExtendedCustomCVForce_H__
 
 #include "ExtendedCustomCVForce.h"
-
 #include "openmm/internal/ContextImpl.h"
-#include "lepton/CompiledExpression.h"
-#include "lepton/CustomFunction.h"
+#include "lepton/ExpressionProgram.h"
 #include <map>
 #include <string>
 #include <vector>
-
-using namespace OpenMM;
 
 namespace OpenMMLab {
 
 class ReferenceExtendedCustomCVForce {
 private:
-    class TabulatedFunctionWrapper;
-    Lepton::CompiledExpression energyExpression;
-    std::vector<std::string> variableNames, paramDerivNames, globalParameterNames;
-    std::vector<Lepton::CompiledExpression> variableDerivExpressions;
-    std::vector<Lepton::CompiledExpression> paramDerivExpressions;
-    std::vector<double> globalValues, cvValues;
-    std::vector<Lepton::CustomFunction*> tabulatedFunctions;
+    Lepton::ExpressionProgram energyExpression;
+    std::vector<std::string> variableNames, paramDerivNames;
+    std::vector<Lepton::ExpressionProgram> variableDerivExpressions;
+    std::vector<Lepton::ExpressionProgram> paramDerivExpressions;
 
 public:
     /**
@@ -63,7 +56,7 @@ public:
      */
    void calculateIxn(ContextImpl& innerContext, std::vector<OpenMM::Vec3>& atomCoordinates,
                      const std::map<std::string, double>& globalParameters,
-                     std::vector<OpenMM::Vec3>& forces, double* totalEnergy, std::map<std::string, double>& energyParamDerivs);
+                     std::vector<OpenMM::Vec3>& forces, double* totalEnergy, std::map<std::string, double>& energyParamDerivs) const;
 };
 
 } // namespace OpenMMLab
