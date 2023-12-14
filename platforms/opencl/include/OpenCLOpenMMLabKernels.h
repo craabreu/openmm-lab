@@ -12,6 +12,7 @@
  * -------------------------------------------------------------------------- */
 
 #include "OpenMMLabKernels.h"
+#include "CommonOpenMMLabKernels.h"
 #include "internal/OpenCLVkFFT3D.h"
 #include "openmm/internal/ContextImpl.h"
 #include "openmm/opencl/OpenCLContext.h"
@@ -200,6 +201,18 @@ public:
             nameLJ = name;
             hasDerivativeLJ = hasDerivative;
         }
+    }
+};
+
+/**
+ * This kernel is invoked by ExtendedCustomCVForce to calculate the forces acting on the system and the energy of the system.
+ */
+class OpenCLCalcExtendedCustomCVForceKernel : public CommonCalcExtendedCustomCVForceKernel {
+public:
+    OpenCLCalcExtendedCustomCVForceKernel(std::string name, const Platform& platform, ComputeContext& cc) : CommonCalcExtendedCustomCVForceKernel(name, platform, cc) {
+    }
+    ComputeContext& getInnerComputeContext(ContextImpl& innerContext) {
+        return *reinterpret_cast<OpenCLPlatform::PlatformData*>(innerContext.getPlatformData())->contexts[0];
     }
 };
 
