@@ -12,6 +12,7 @@
  * -------------------------------------------------------------------------- */
 
 #include "OpenMMLabKernels.h"
+#include "CommonOpenMMLabKernels.h"
 #include "internal/CudaFFT3D.h"
 #include "internal/CudaCuFFT3D.h"
 #include "internal/CudaVkFFT3D.h"
@@ -198,6 +199,18 @@ public:
             nameLJ = name;
             hasDerivativeLJ = hasDerivative;
         }
+    }
+};
+
+/**
+ * This kernel is invoked by ExtendedCustomCVForce to calculate the forces acting on the system and the energy of the system.
+ */
+class CudaCalcExtendedCustomCVForceKernel : public CommonCalcExtendedCustomCVForceKernel {
+public:
+    CudaCalcExtendedCustomCVForceKernel(std::string name, const Platform& platform, ComputeContext& cc) : CommonCalcExtendedCustomCVForceKernel(name, platform, cc) {
+    }
+    ComputeContext& getInnerComputeContext(ContextImpl& innerContext) {
+        return *reinterpret_cast<CudaPlatform::PlatformData*>(innerContext.getPlatformData())->contexts[0];
     }
 };
 
