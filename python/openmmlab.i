@@ -6,6 +6,7 @@
 
 %{
 #include "SlicedNonbondedForce.h"
+#include "ExtendedCustomCVForce.h"
 #include "OpenMM.h"
 #include "OpenMMAmoeba.h"
 #include "OpenMMDrude.h"
@@ -26,12 +27,12 @@ __version__ = "@CMAKE_PROJECT_VERSION@"
 */
 
 %pythonappend OpenMMLab::SlicedNonbondedForce::getPMEParametersInContext(
-        const openMM::Context& context, double& alpha, int& nx, int& ny, int& nz) const %{
+        const OpenMM::Context& context, double& alpha, int& nx, int& ny, int& nz) const %{
     val[0] = unit.Quantity(val[0], 1/unit.nanometers)
 %}
 
 %pythonappend OpenMMLab::SlicedNonbondedForce::getLJPMEParametersInContext(
-        const openMM::Context& context, double& alpha, int& nx, int& ny, int& nz) const %{
+        const OpenMM::Context& context, double& alpha, int& nx, int& ny, int& nz) const %{
     val[0] = unit.Quantity(val[0], 1/unit.nanometers)
 %}
 
@@ -430,5 +431,368 @@ public:
 %clear int& subset2;
 %clear bool& includeLJ;
 %clear bool& includeCoulomb;
+
+/**
+ * This class supports energy functions that depend on collective variables.  To use it,
+ * you define a set of collective variables (scalar valued functions that depend on the
+ * particle positions), and an algebraic expression for the energy as a function of the
+ * collective variables.  The expression also may involve tabulated functions, and may
+ * depend on arbitrary global parameters.
+ *
+ * Each collective variable is defined by a Force object.  The Force's potential energy
+ * is computed, and that becomes the value of the variable.  This provides enormous
+ * flexibility in defining collective variables, especially by using custom forces.
+ * Anything that can be computed as a potential function can also be used as a collective
+ * variable.
+ *
+ * To use this class, create a ExtendedCustomCVForce object, passing an algebraic expression to the
+ * constructor that defines the potential energy.  Then call addCollectiveVariable() to define
+ * collective variables and addGlobalParameter() to define global parameters.  The values
+ * of global parameters may be modified during a simulation by calling Context::setParameter().
+ *
+ * This class also has the ability to compute derivatives of the potential energy with respect to global parameters.
+ * Call addEnergyParameterDerivative() to request that the derivative with respect to a particular parameter be
+ * computed.  You can then query its value in a Context by calling getState() on it.
+ *
+ * Expressions may involve the operators + (add), - (subtract), * (multiply), / (divide), and ^ (power), and the following
+ * functions: sqrt, exp, log, sin, cos, sec, csc, tan, cot, asin, acos, atan, atan2, sinh, cosh, tanh, erf, erfc, min, max, abs, floor, ceil, step, delta, select.  All trigonometric functions
+ * are defined in radians, and log is the natural logarithm.  step(x) = 0 if x is less than 0, 1 otherwise.  delta(x) = 1 if x is 0, 0 otherwise.
+ * select(x,y,z) = z if x = 0, y otherwise.
+ *
+ * In addition, you can call addTabulatedFunction() to define a new function based on tabulated values.  You specify the function by
+ * creating a TabulatedFunction object.  That function can then appear in the expression.
+ */
+class ExtendedCustomCVForce : public OpenMM::Force {
+public:
+    /**
+     * Create a ExtendedCustomCVForce.
+     *
+     * Parameters
+     * ----------
+     * energy : str
+     *     an algebraic expression giving the energy of the system as a function
+     *     of the collective variables and global parameters
+     */
+    explicit ExtendedCustomCVForce(const std::string& energy);
+    /**
+     * Get the number of collective variables that the interaction depends on.
+     */
+    int getNumCollectiveVariables() const;
+    /**
+     * Get the number of global parameters that the interaction depends on.
+     */
+    int getNumGlobalParameters() const;
+    /**
+     * Get the number of global parameters with respect to which the derivative of the energy
+     * should be computed.
+     */
+    int getNumEnergyParameterDerivatives() const;
+    /**
+     * Get the number of tabulated functions that have been defined.
+     */
+    int getNumTabulatedFunctions() const;
+    /**
+     * Get the algebraic expression that gives the energy of the system
+     */
+    const std::string& getEnergyFunction() const;
+    /**
+     * Set the algebraic expression that gives the energy of the system
+     */
+    void setEnergyFunction(const std::string& energy);
+    /**
+     * Add a collective variable that the force may depend on.  The collective variable
+     * is represented by a Force object, which should have been created on the heap with the
+     * "new" operator.  The ExtendedCustomCVForce takes over ownership of it, and deletes the Force when the
+     * ExtendedCustomCVForce itself is deleted.
+     *
+     * Parameters
+     * ----------
+     * name : str
+     *     the name of the collective variable, as it will appear in the energy expression
+     * variable : Force
+     *     the collective variable, represented by a Force object.  The value of the
+     *     variable is the energy computed by the Force.
+     *
+     * Returns
+     * -------
+     * int
+     *     the index within the Force of the variable that was added
+     */
+    int addCollectiveVariable(const std::string& name, Force* variable);
+    /**
+     * Get the name of a collective variable.
+     *
+     * Parameters
+     * ----------
+     * index : int
+     *     the index of the collective variable for which to get the name
+     *
+     * Returns
+     * -------
+     * str
+     *     the variable name
+     */
+    const std::string& getCollectiveVariableName(int index) const;
+    /**
+     * Get a writable reference to the Force object that computes a collective variable.
+     *
+     * Parameters
+     * ----------
+     * index : int
+     *     the index of the collective variable to get
+     *
+     * Returns
+     * -------
+     * Force
+     *     the Force object
+     */
+    Force& getCollectiveVariable(int index);
+    /**
+     * Get a const reference to the Force object that computes a collective variable.
+     *
+     * Parameters
+     * ----------
+     * index : int
+     *     the index of the collective variable to get
+     *
+     * Returns
+     * -------
+     * const Force
+     *     the Force object
+     */
+    const Force& getCollectiveVariable(int index) const;
+    /**
+     * Add a new global parameter that the interaction may depend on.  The default value provided to
+     * this method is the initial value of the parameter in newly created Contexts.  You can change
+     * the value at any time by calling setParameter() on the Context.
+     *
+     * Parameters
+     * ----------
+     * name : str
+     *     the name of the parameter
+     * default_value : float
+     *     the default value of the parameter
+     *
+     * Returns
+     * -------
+     * int
+     *     the index of the parameter that was added
+     */
+    int addGlobalParameter(const std::string& name, double defaultValue);
+    /**
+     * Get the name of a global parameter.
+     *
+     * Parameters
+     * ----------
+     * index : int
+     *     the index of the parameter for which to get the name
+     *
+     * Returns
+     * -------
+     * str
+     *     the parameter name
+     */
+    const std::string& getGlobalParameterName(int index) const;
+    /**
+     * Set the name of a global parameter.
+     *
+     * Parameters
+     * ----------
+     * index : int
+     *     the index of the parameter for which to set the name
+     * name : str
+     *     the name of the parameter
+     */
+    void setGlobalParameterName(int index, const std::string& name);
+    /**
+     * Get the default value of a global parameter.
+     *
+     * Parameters
+     * ----------
+     * index : int
+     *     the index of the parameter for which to get the default value
+     *
+     * Returns
+     * -------
+     * float
+     *     the parameter default value
+     */
+    double getGlobalParameterDefaultValue(int index) const;
+    /**
+     * Set the default value of a global parameter.
+     *
+     * Parameters
+     * ----------
+     * index : int
+     *     the index of the parameter for which to set the default value
+     * default_value : float
+     *     the default value of the parameter
+     *
+     * Returns
+     * -------
+     * float
+     *     the parameter default value
+     */
+    void setGlobalParameterDefaultValue(int index, double defaultValue);
+    /**
+     * Request that this Force compute the derivative of its energy with respect to a global parameter.
+     * The parameter must have already been added with addGlobalParameter().
+     *
+     * Parameters
+     * ----------
+     * name : str
+     *     the name of the parameter
+     */
+    void addEnergyParameterDerivative(const std::string& name);
+    /**
+     * Get the name of a global parameter with respect to which this Force should compute the
+     * derivative of the energy.
+     *
+     * Parameters
+     * ----------
+     * index : int
+     *     the index of the parameter derivative, between 0 and getNumEnergyParameterDerivatives()
+     *
+     * Returns
+     * -------
+     * str
+     *     the parameter name
+     */
+    const std::string& getEnergyParameterDerivativeName(int index) const;
+    /**
+     * Add a tabulated function that may appear in the energy expression.
+     *
+     * Parameters
+     * ----------
+     * name : str
+     *     the name of the function
+     * function : TabulatedFunction
+     *     a TabulatedFunction object defining the function
+     *
+     * Returns
+     * -------
+     * int
+     *     the index of the function that was added
+     */
+    int addTabulatedFunction(const std::string& name, TabulatedFunction* function);
+    /**
+     * Get a const reference to a tabulated function that may appear in the energy expression.
+     *
+     * Parameters
+     * ----------
+     * index : int
+     *     the index of the function to get
+     *
+     * Returns
+     * -------
+     * const TabulatedFunction
+     *     the TabulatedFunction object defining the function
+     */
+    const TabulatedFunction& getTabulatedFunction(int index) const;
+    /**
+     * Get a reference to a tabulated function that may appear in the energy expression.
+     *
+     * Parameters
+     * ----------
+     * index : int
+     *     the index of the function to get
+     *
+     * Returns
+     * -------
+     * TabulatedFunction
+     *     the TabulatedFunction object defining the function
+     */
+    TabulatedFunction& getTabulatedFunction(int index);
+    /**
+     * Get the name of a tabulated function that may appear in the energy expression.
+     *
+     * Parameters
+     * ----------
+     * index : int
+     *     the index of the function to get
+     *
+     * Returns
+     * -------
+     * str
+     *     the name of the function as it appears in expressions
+     */
+    const std::string& getTabulatedFunctionName(int index) const;
+    /**
+     * Get the current values of the collective variables in a Context.
+     *
+     * Parameters
+     * ----------
+     * context : Context
+     *     the Context
+     *
+     * Returns
+     * -------
+     * std::vector<double>
+     *     the values of the collective variables
+     */
+#if OPENMM_VERSION_MAJOR >= 8
+    void getCollectiveVariableValues(OpenMM::Context& context, std::vector<double>& values) const;
+#else
+    void getCollectiveVariableValues(OpenMM::Context& context, std::vector<double>& values);
+#endif
+    /**
+     * Get the inner Context used for evaluating collective variables.
+     *
+     * When you create a Context for a System that contains a ExtendedCustomCVForce, internally
+     * it creates a new System, adds the Forces that define the CVs to it, creates a new
+     * Context for that System, and uses it to evaluate the variables.  In most cases you
+     * can ignore all of this.  It is just an implementation detail.  However, there are
+     * a few cases where you need to directly access that internal Context.  For example,
+     * if you want to modify one of the Forces that defines a collective variable and
+     * call updateParametersInContext() on it, you need to pass that inner Context to it.
+     * This method returns a reference to it.
+     *
+     * Parameters
+     * ----------
+     * context : Context
+     *     the Context
+     *
+     * Returns
+     * -------
+     * Context
+     *     the inner Context used to evaluate the collective variables
+     */
+    OpenMM::Context& getInnerContext(OpenMM::Context& context);
+    /**
+     * Update the tabulated function parameters in a Context to match those stored in this Force object.  This method
+     * provides an efficient method to update certain parameters in an existing Context without needing to reinitialize it.
+     * Simply call getTabulatedFunction(index).setFunctionParameters() to modify this object's parameters, then call
+     * updateParametersInContext() to copy them over to the Context.
+     *
+     * This method is very limited.  The only information it updates is the parameters of tabulated functions.
+     * All other aspects of the Force (the energy expression, the set of collective variables, etc.) are unaffected and can
+     * only be changed by reinitializing the Context.
+     */
+    void updateParametersInContext(OpenMM::Context& context);
+    /**
+     * Returns whether or not this force makes use of periodic boundary
+     * conditions.
+     *
+     * Returns
+     * -------
+     * bool
+     *     true if force uses PBC and false otherwise
+     */
+    bool usesPeriodicBoundaryConditions() const;
+
+    /*
+     * Add methods for casting a Force to an ExtendedCustomCVForce.
+    */
+
+    %extend {
+        static OpenMMLab::ExtendedCustomCVForce& cast(OpenMM::Force& force) {
+            return dynamic_cast<OpenMMLab::ExtendedCustomCVForce&>(force);
+        }
+
+        static bool isinstance(OpenMM::Force& force) {
+            return (dynamic_cast<OpenMMLab::ExtendedCustomCVForce*>(&force) != NULL);
+        }
+    }
+};
 
 }

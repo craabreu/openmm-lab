@@ -17,6 +17,7 @@ This is the implemented subclass of :OpenMM:`Force`:
     :titlesonly:
 
     SlicedNonbondedForce
+    ExtendedCustomCVForce
 
 
 .. testsetup::
