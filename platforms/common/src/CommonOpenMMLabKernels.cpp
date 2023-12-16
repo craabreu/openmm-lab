@@ -151,7 +151,7 @@ void CommonCalcExtendedCustomCVForceKernel::initialize(const System& system, con
     copyForcesKernel->addArg(cc.getPaddedNumAtoms());
     addForcesKernel = program->createKernel("addForces");
     addForcesKernel->addArg(cc.getLongForceBuffer());
-    addForcesKernel->addArg(cc.getLongForceBuffer().getSize());
+    addForcesKernel->addArg((int) cc.getLongForceBuffer().getSize());
     for (int i = 0; i < numCVs; i++) {
         addForcesKernel->addArg();
         addForcesKernel->addArg();
@@ -164,7 +164,6 @@ void CommonCalcExtendedCustomCVForceKernel::initialize(const System& system, con
 }
 
 double CommonCalcExtendedCustomCVForceKernel::execute(ContextImpl& context, ContextImpl& innerContext, bool includeForces, bool includeEnergy) {
-    ContextSelector selector(cc);
     copyState(context, innerContext);
     int numCVs = variableNames.size();
     int numAtoms = cc.getNumAtoms();
@@ -173,6 +172,7 @@ double CommonCalcExtendedCustomCVForceKernel::execute(ContextImpl& context, Cont
     vector<map<string, double> > cvDerivs(numCVs);
     for (int i = 0; i < numCVs; i++) {
         cvValues.push_back(innerContext.calcForcesAndEnergy(true, true, 1<<i));
+        ContextSelector selector(cc);
         copyForcesKernel->setArg(0, cvForces[i]);
         copyForcesKernel->execute(numAtoms);
         innerContext.getEnergyParameterDerivatives(cvDerivs[i]);
@@ -180,6 +180,7 @@ double CommonCalcExtendedCustomCVForceKernel::execute(ContextImpl& context, Cont
 
     // Compute the energy and forces.
 
+    ContextSelector selector(cc);
     map<string, double> variables;
     for (auto& name : globalParameterNames)
         variables[name] = context.getParameter(name);
