@@ -1,6 +1,3 @@
-#ifndef OPENMM_CUDAOPENMM_LABKERNELFACTORY_H_
-#define OPENMM_CUDAOPENMM_LABKERNELFACTORY_H_
-
 /* -------------------------------------------------------------------------- *
  *                             OpenMM Laboratory                              *
  *                             =================                              *
@@ -11,21 +8,8 @@
  * https://github.com/craabreu/openmm-lab                                     *
  * -------------------------------------------------------------------------- */
 
-#include "openmm/KernelFactory.h"
+#include "OpenCLOpenMMLabTests.h"
+#include "TestExtendedCustomCVForce.h"
 
-using namespace OpenMM;
-
-namespace OpenMMLab {
-
-/**
- * This KernelFactory creates kernels for the CUDA implementation of the OpenMMLab plugin.
- */
-
-class CudaOpenMMLabKernelFactory : public KernelFactory {
-public:
-    KernelImpl* createKernelImpl(std::string name, const Platform& platform, ContextImpl& context) const;
-};
-
-} // namespace OpenMM
-
-#endif /*OPENMM_CUDAOPENMM_LABKERNELFACTORY_H_*/
+void runPlatformTests() {
+}

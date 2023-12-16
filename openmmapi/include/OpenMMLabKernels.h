@@ -11,7 +11,9 @@
  * https://github.com/craabreu/openmm-lab                                     *
  * -------------------------------------------------------------------------- */
 
+#include "ExtendedCustomCVForce.h"
 #include "SlicedNonbondedForce.h"
+
 #include "openmm/KernelImpl.h"
 #include "openmm/Platform.h"
 #include "openmm/System.h"
@@ -82,6 +84,50 @@ public:
      * @param nz      the number of grid points along the Z axis
      */
     virtual void getLJPMEParameters(double& alpha, int& nx, int& ny, int& nz) const = 0;
+};
+
+/**
+ * This kernel is invoked by ExtendedCustomCVForce to calculate the forces acting on the system and the energy of the system.
+ */
+class CalcExtendedCustomCVForceKernel : public KernelImpl {
+public:
+    static std::string Name() {
+        return "CalcExtendedCustomCVForce";
+    }
+    CalcExtendedCustomCVForceKernel(std::string name, const Platform& platform) : KernelImpl(name, platform) {
+    }
+    /**
+     * Initialize the kernel.
+     *
+     * @param system     the System this kernel will be applied to
+     * @param force      the ExtendedCustomCVForce this kernel will be used for
+     * @param innerContext   the context created by the ExtendedCustomCVForce for computing collective variables
+     */
+    virtual void initialize(const System& system, const ExtendedCustomCVForce& force, ContextImpl& innerContext) = 0;
+    /**
+     * Execute the kernel to calculate the forces and/or energy.
+     *
+     * @param context        the context in which to execute this kernel
+     * @param innerContext   the context created by the ExtendedCustomCVForce for computing collective variables
+     * @param includeForces  true if forces should be calculated
+     * @param includeEnergy  true if the energy should be calculated
+     * @return the potential energy due to the force
+     */
+    virtual double execute(ContextImpl& context, ContextImpl& innerContext, bool includeForces, bool includeEnergy) = 0;
+    /**
+     * Copy state information to the inner context.
+     *
+     * @param context        the context in which to execute this kernel
+     * @param innerContext   the context created by the ExtendedCustomCVForce for computing collective variables
+     */
+    virtual void copyState(ContextImpl& context, ContextImpl& innerContext) = 0;
+    /**
+     * Copy changed parameters over to a context.
+     *
+     * @param context    the context to copy parameters to
+     * @param force      the ExtendedCustomCVForce to copy the parameters from
+     */
+    virtual void copyParametersToContext(ContextImpl& context, const ExtendedCustomCVForce& force) = 0;
 };
 
 } // namespace OpenMMLab

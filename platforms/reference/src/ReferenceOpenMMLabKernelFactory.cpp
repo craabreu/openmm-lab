@@ -1,5 +1,11 @@
 /* -------------------------------------------------------------------------- *
- *                              OpenMMOpenMMLab                                   *
+ *                             OpenMM Laboratory                              *
+ *                             =================                              *
+ *                                                                            *
+ * A plugin for testing low-level code implementation for OpenMM.             *
+ *                                                                            *
+ * Copyright (c) 2023 Charlles Abreu                                          *
+ * https://github.com/craabreu/openmm-lab                                     *
  * -------------------------------------------------------------------------- */
 
 #include "ReferenceOpenMMLabKernelFactory.h"
@@ -20,6 +26,7 @@ extern "C" OPENMM_EXPORT void registerKernelFactories() {
         if (dynamic_cast<ReferencePlatform*>(&platform) != NULL) {
             ReferenceOpenMMLabKernelFactory* factory = new ReferenceOpenMMLabKernelFactory();
             platform.registerKernelFactory(CalcSlicedNonbondedForceKernel::Name(), factory);
+            platform.registerKernelFactory(CalcExtendedCustomCVForceKernel::Name(), factory);
         }
     }
 }
@@ -32,5 +39,7 @@ KernelImpl* ReferenceOpenMMLabKernelFactory::createKernelImpl(std::string name, 
     ReferencePlatform::PlatformData& data = *static_cast<ReferencePlatform::PlatformData*>(context.getPlatformData());
     if (name == CalcSlicedNonbondedForceKernel::Name())
         return new ReferenceCalcSlicedNonbondedForceKernel(name, platform);
+    if (name == CalcExtendedCustomCVForceKernel::Name())
+        return new ReferenceCalcExtendedCustomCVForceKernel(name, platform);
     throw OpenMMException((std::string("Tried to create kernel with illegal kernel name '")+name+"'").c_str());
 }

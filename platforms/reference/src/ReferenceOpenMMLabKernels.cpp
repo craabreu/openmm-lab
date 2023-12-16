@@ -10,6 +10,7 @@
 
 #include "ReferenceOpenMMLabKernels.h"
 #include "SlicedNonbondedForce.h"
+#include "ExtendedCustomCVForce.h"
 #include "internal/SlicedNonbondedForceImpl.h"
 #include "openmm/OpenMMException.h"
 #include "openmm/internal/ContextImpl.h"
@@ -34,6 +35,11 @@ using namespace std;
 static vector<RealVec>& extractPositions(ContextImpl& context) {
     ReferencePlatform::PlatformData* data = reinterpret_cast<ReferencePlatform::PlatformData*>(context.getPlatformData());
     return *((vector<RealVec>*) data->positions);
+}
+
+static vector<Vec3>& extractVelocities(ContextImpl& context) {
+    ReferencePlatform::PlatformData* data = reinterpret_cast<ReferencePlatform::PlatformData*>(context.getPlatformData());
+    return *data->velocities;
 }
 
 static vector<RealVec>& extractForces(ContextImpl& context) {
@@ -376,4 +382,46 @@ void ReferenceCalcSlicedNonbondedForceKernel::computeParameters(ContextImpl& con
         bonded14ParamArray[i][1] = 4.0*epsilons[i];
         bonded14ParamArray[i][2] = charges[i];
     }
+}
+
+ReferenceCalcExtendedCustomCVForceKernel::~ReferenceCalcExtendedCustomCVForceKernel() {
+    if (ixn != NULL)
+        delete ixn;
+}
+
+void ReferenceCalcExtendedCustomCVForceKernel::initialize(const System& system, const ExtendedCustomCVForce& force, ContextImpl& innerContext) {
+    for (int i = 0; i < force.getNumGlobalParameters(); i++)
+        globalParameterNames.push_back(force.getGlobalParameterName(i));
+    for (int i = 0; i < force.getNumEnergyParameterDerivatives(); i++)
+        energyParamDerivNames.push_back(force.getEnergyParameterDerivativeName(i));
+    ixn = new ReferenceExtendedCustomCVForce(force);
+}
+
+double ReferenceCalcExtendedCustomCVForceKernel::execute(ContextImpl& context, ContextImpl& innerContext, bool includeForces, bool includeEnergy) {
+    copyState(context, innerContext);
+    vector<Vec3>& posData = extractPositions(context);
+    vector<Vec3>& forceData = extractForces(context);
+    double energy = 0;
+    map<string, double> globalParameters;
+    for (auto& name : globalParameterNames)
+        globalParameters[name] = context.getParameter(name);
+    map<string, double>& energyParamDerivs = extractEnergyParameterDerivatives(context);
+    ixn->calculateIxn(innerContext, posData, globalParameters, forceData, includeEnergy ? &energy : NULL, energyParamDerivs);
+    return energy;
+}
+
+void ReferenceCalcExtendedCustomCVForceKernel::copyState(ContextImpl& context, ContextImpl& innerContext) {
+    extractPositions(innerContext) = extractPositions(context);
+    extractVelocities(innerContext) = extractVelocities(context);
+    Vec3 a, b, c;
+    context.getPeriodicBoxVectors(a, b, c);
+    innerContext.setPeriodicBoxVectors(a, b, c);
+    innerContext.setTime(context.getTime());
+    map<string, double> innerParameters = innerContext.getParameters();
+    for (auto& param : innerParameters)
+        innerContext.setParameter(param.first, context.getParameter(param.first));
+}
+
+void ReferenceCalcExtendedCustomCVForceKernel::copyParametersToContext(ContextImpl& context, const ExtendedCustomCVForce& force) {
+    ixn->updateTabulatedFunctions(force);
 }

@@ -24,6 +24,7 @@ extern "C" OPENMM_EXPORT void registerKernelFactories() {
         Platform& platform = Platform::getPlatformByName("CUDA");
         CudaOpenMMLabKernelFactory* factory = new CudaOpenMMLabKernelFactory();
         platform.registerKernelFactory(CalcSlicedNonbondedForceKernel::Name(), factory);
+        platform.registerKernelFactory(CalcExtendedCustomCVForceKernel::Name(), factory);
     }
     catch (std::exception ex) {
         // Ignore
@@ -50,5 +51,7 @@ KernelImpl* CudaOpenMMLabKernelFactory::createKernelImpl(std::string name, const
     CudaContext& cu = *data.contexts[0];
     if (name == CalcSlicedNonbondedForceKernel::Name())
         return new CudaCalcSlicedNonbondedForceKernel(name, platform, cu, context.getSystem());
+    if (name == CalcExtendedCustomCVForceKernel::Name())
+        return new CudaCalcExtendedCustomCVForceKernel(name, platform, cu);
     throw OpenMMException((std::string("Tried to create kernel with illegal kernel name '")+name+"'").c_str());
 }
