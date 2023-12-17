@@ -23,7 +23,6 @@ jobs:
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.REPO_TOKEN }}
-          path: openmm-lab
 
       - name: "Install SDK on MacOS"
         run: source devtools/scripts/install_macos_sdk.sh
