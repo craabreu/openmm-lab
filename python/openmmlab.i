@@ -520,7 +520,7 @@ public:
      * int
      *     the index within the Force of the variable that was added
      */
-    int addCollectiveVariable(const std::string& name, Force* variable);
+    int addCollectiveVariable(const std::string& name, OpenMM::Force* variable);
     /**
      * Get the name of a collective variable.
      *
@@ -605,7 +605,9 @@ public:
      * name : str
      *     the name of the parameter
      */
+%apply const std::string& OUTPUT {const std::string& name};
     void setGlobalParameterName(int index, const std::string& name);
+%clear std::string& name;
     /**
      * Get the default value of a global parameter.
      *
@@ -676,7 +678,7 @@ public:
      * int
      *     the index of the function that was added
      */
-    int addTabulatedFunction(const std::string& name, TabulatedFunction* function);
+    int addTabulatedFunction(const std::string& name, OpenMM::TabulatedFunction* function);
     /**
      * Get a const reference to a tabulated function that may appear in the energy expression.
      *
@@ -690,7 +692,7 @@ public:
      * const TabulatedFunction
      *     the TabulatedFunction object defining the function
      */
-    const TabulatedFunction& getTabulatedFunction(int index) const;
+    const OpenMM::TabulatedFunction& getTabulatedFunction(int index) const;
     /**
      * Get a reference to a tabulated function that may appear in the energy expression.
      *
@@ -704,7 +706,7 @@ public:
      * TabulatedFunction
      *     the TabulatedFunction object defining the function
      */
-    TabulatedFunction& getTabulatedFunction(int index);
+    OpenMM::TabulatedFunction& getTabulatedFunction(int index);
     /**
      * Get the name of a tabulated function that may appear in the energy expression.
      *
@@ -732,11 +734,13 @@ public:
      * std::vector<double>
      *     the values of the collective variables
      */
+%apply std::vector<double>& OUTPUT {std::vector<double>& values};
 #if OPENMM_VERSION_MAJOR >= 8
     void getCollectiveVariableValues(OpenMM::Context& context, std::vector<double>& values) const;
 #else
     void getCollectiveVariableValues(OpenMM::Context& context, std::vector<double>& values);
 #endif
+%clear std::vector<double>& values;
     /**
      * Get the inner Context used for evaluating collective variables.
      *
