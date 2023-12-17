@@ -26,6 +26,7 @@ __version__ = "@CMAKE_PROJECT_VERSION@"
  * Add units to function outputs.
 */
 
+/*
 %pythonappend OpenMMLab::SlicedNonbondedForce::getPMEParametersInContext(
         const OpenMM::Context& context, double& alpha, int& nx, int& ny, int& nz) const %{
     val[0] = unit.Quantity(val[0], 1/unit.nanometers)
@@ -35,6 +36,7 @@ __version__ = "@CMAKE_PROJECT_VERSION@"
         const OpenMM::Context& context, double& alpha, int& nx, int& ny, int& nz) const %{
     val[0] = unit.Quantity(val[0], 1/unit.nanometers)
 %}
+*/
 
 /*
  * Convert C++ exceptions to Python exceptions.
