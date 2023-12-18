@@ -5,6 +5,7 @@
 %include <std_string.i>
 
 %{
+#define OPENMM_VERSION_MAJOR @OPENMM_VERSION_MAJOR@
 #include "SlicedNonbondedForce.h"
 #include "ExtendedCustomCVForce.h"
 #include "OpenMM.h"

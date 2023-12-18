@@ -10,7 +10,6 @@ add_custom_command(
         -python -c++
         -doxygen
         -o "${WRAP_FILE}"
-        -DOPENMM_VERSION_MAJOR=${OPENMM_VERSION_MAJOR}
         "-I${OPENMM_DIR}/include"
         "openmmlab.i"
     DEPENDS "openmmlab.i"
