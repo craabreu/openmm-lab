@@ -36,6 +36,7 @@ def create_rst_file(cls):
 
 
 create_rst_file(openmmlab.SlicedNonbondedForce)
+create_rst_file(openmmlab.ExtendedCustomCVForce)
 
 extensions = [
     'sphinx.ext.autodoc',

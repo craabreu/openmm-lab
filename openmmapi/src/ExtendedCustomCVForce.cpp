@@ -24,6 +24,7 @@ using namespace OpenMM;
 using namespace std;
 
 ExtendedCustomCVForce::ExtendedCustomCVForce(const string& energy) : energyExpression(energy) {
+    this->setName("ExtendedCustomCVForce");
 }
 
 ExtendedCustomCVForce::~ExtendedCustomCVForce() {
