@@ -3,6 +3,11 @@
 %import(module="openmm") "swig/OpenMMSwigHeaders.i"
 %include "swig/typemaps.i"
 %include <std_string.i>
+%include <std_vector.i>
+
+namespace std {
+  %template(vectord) vector<double>;
+};
 
 %{
 #define OPENMM_VERSION_MAJOR @OPENMM_VERSION_MAJOR@
@@ -38,6 +43,40 @@ __version__ = "@CMAKE_PROJECT_VERSION@"
     val[0] = unit.Quantity(val[0], 1/unit.nanometers)
 %}
 */
+
+/*
+ * Process collective variable when adding it.
+*/
+
+%pythonprepend OpenMMLab::ExtendedCustomCVForce::addCollectiveVariable(
+    const std::string& name, OpenMM::Force* variable) %{
+    if not variable.thisown:
+        s = ("the %s object does not own its corresponding OpenMM object"
+                % self.__class__.__name__)
+        raise Exception(s)
+%}
+
+%pythonappend OpenMMLab::ExtendedCustomCVForce::addCollectiveVariable(
+    const std::string& name, OpenMM::Force* variable) %{
+    variable.thisown = 0
+%}
+
+/*
+ * Process tabulated function when adding it.
+*/
+
+%pythonprepend OpenMMLab::ExtendedCustomCVForce::addTabulatedFunction(
+    const std::string& name, OpenMM::TabulatedFunction* function) %{
+    if not function.thisown:
+        s = ("the %s object does not own its corresponding OpenMM object"
+                % self.__class__.__name__)
+        raise Exception(s)
+%}
+
+%pythonappend OpenMMLab::ExtendedCustomCVForce::addTabulatedFunction(
+    const std::string& name, OpenMM::TabulatedFunction* function) %{
+    function.thisown = 0
+%}
 
 /*
  * Convert C++ exceptions to Python exceptions.
