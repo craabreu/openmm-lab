@@ -1,0 +1,48 @@
+ExtendedCustomCVForce
+=====================
+
+.. currentmodule:: openmmlab
+.. autoclass:: ExtendedCustomCVForce
+    :members:
+    :inherited-members:
+    :member-order: alphabetical
+    :show-inheritance:
+    :exclude-members: thisown, isinstance
+
+    .. automethod:: __init__
+
+    .. rubric:: Methods
+
+    .. autosummary::
+        addCollectiveVariable
+        addEnergyParameterDerivative
+        addGlobalParameter
+        addTabulatedFunction
+        getCollectiveVariable
+        getCollectiveVariableName
+        getCollectiveVariableValues
+        getEnergyFunction
+        getEnergyParameterDerivativeName
+        getForceGroup
+        getGlobalParameterDefaultValue
+        getGlobalParameterName
+        getInnerContext
+        getName
+        getNumCollectiveVariables
+        getNumEnergyParameterDerivatives
+        getNumGlobalParameters
+        getNumTabulatedFunctions
+        getTabulatedFunction
+        getTabulatedFunctionName
+        setEnergyFunction
+        setForceGroup
+        setGlobalParameterDefaultValue
+        setGlobalParameterName
+        setName
+        updateParametersInContext
+        usesPeriodicBoundaryConditions
+
+    .. rubric:: Attributes
+
+    .. autosummary::
+        thisown

@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>ExtendedCustomCVForce &#8212; OpenMM Laboratory  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=039e1c02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=d72ef124" />
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=ccdb6887"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Contributing" href="../contributing.html" />
+    <link rel="prev" title="SlicedNonbondedForce" href="SlicedNonbondedForce.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="extendedcustomcvforce">
+<h1>ExtendedCustomCVForce<a class="headerlink" href="#extendedcustomcvforce" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="openmmlab.ExtendedCustomCVForce">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ExtendedCustomCVForce</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.ExtendedCustomCVForce" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Force</span></code></p>
+<p>This class supports energy functions that depend on collective variables.  To use it,
+you define a set of collective variables (scalar valued functions that depend on the
+particle positions), and an algebraic expression for the energy as a function of the
+collective variables.  The expression also may involve tabulated functions, and may
+depend on arbitrary global parameters.</p>
+<p>Each collective variable is defined by a Force object.  The Force’s potential energy
+is computed, and that becomes the value of the variable.  This provides enormous
+flexibility in defining collective variables, especially by using custom forces.
+Anything that can be computed as a potential function can also be used as a collective
+variable.</p>
+<p>To use this class, create a ExtendedCustomCVForce object, passing an algebraic expression to the
+constructor that defines the potential energy.  Then call addCollectiveVariable() to define
+collective variables and addGlobalParameter() to define global parameters.  The values
+of global parameters may be modified during a simulation by calling Context::setParameter().</p>
+<p>This class also has the ability to compute derivatives of the potential energy with respect to global parameters.
+Call addEnergyParameterDerivative() to request that the derivative with respect to a particular parameter be
+computed.  You can then query its value in a Context by calling getState() on it.</p>
+<p>Expressions may involve the operators + (add), - (subtract), * (multiply), / (divide), and ^ (power), and the following
+functions: sqrt, exp, log, sin, cos, sec, csc, tan, cot, asin, acos, atan, atan2, sinh, cosh, tanh, erf, erfc, min, max, abs, floor, ceil, step, delta, select.  All trigonometric functions
+are defined in radians, and log is the natural logarithm.  step(x) = 0 if x is less than 0, 1 otherwise.  delta(x) = 1 if x is 0, 0 otherwise.
+select(x,y,z) = z if x = 0, y otherwise.</p>
+<p>In addition, you can call addTabulatedFunction() to define a new function based on tabulated values.  You specify the function by
+creating a TabulatedFunction object.  That function can then appear in the expression.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.ExtendedCustomCVForce.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.ExtendedCustomCVForce.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>Create a ExtendedCustomCVForce.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>energy</strong> (<em>str</em>) – an algebraic expression giving the energy of the system as a function
+of the collective variables and global parameters</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#openmmlab.ExtendedCustomCVForce.addCollectiveVariable" title="openmmlab.ExtendedCustomCVForce.addCollectiveVariable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">addCollectiveVariable</span></code></a>(name, variable)</p></td>
+<td><p>Add a collective variable that the force may depend on.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#openmmlab.ExtendedCustomCVForce.addEnergyParameterDerivative" title="openmmlab.ExtendedCustomCVForce.addEnergyParameterDerivative"><code class="xref py py-obj docutils literal notranslate"><span class="pre">addEnergyParameterDerivative</span></code></a>(name)</p></td>
+<td><p>Request that this Force compute the derivative of its energy with respect to a global parameter.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#openmmlab.ExtendedCustomCVForce.addGlobalParameter" title="openmmlab.ExtendedCustomCVForce.addGlobalParameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">addGlobalParameter</span></code></a>(name, defaultValue)</p></td>
+<td><p>Add a new global parameter that the interaction may depend on.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#openmmlab.ExtendedCustomCVForce.addTabulatedFunction" title="openmmlab.ExtendedCustomCVForce.addTabulatedFunction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">addTabulatedFunction</span></code></a>(name, function)</p></td>
+<td><p>Add a tabulated function that may appear in the energy expression.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#openmmlab.ExtendedCustomCVForce.getCollectiveVariable" title="openmmlab.ExtendedCustomCVForce.getCollectiveVariable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getCollectiveVariable</span></code></a>(*args)</p></td>
+<td><p><em>Overload 1:</em></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#openmmlab.ExtendedCustomCVForce.getCollectiveVariableName" title="openmmlab.ExtendedCustomCVForce.getCollectiveVariableName"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getCollectiveVariableName</span></code></a>(index)</p></td>
+<td><p>Get the name of a collective variable.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getCollectiveVariableValues</span></code>(context)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#openmmlab.ExtendedCustomCVForce.getEnergyFunction" title="openmmlab.ExtendedCustomCVForce.getEnergyFunction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getEnergyFunction</span></code></a>()</p></td>
+<td><p>Get the algebraic expression that gives the energy of the system</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#openmmlab.ExtendedCustomCVForce.getEnergyParameterDerivativeName" title="openmmlab.ExtendedCustomCVForce.getEnergyParameterDerivativeName"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getEnergyParameterDerivativeName</span></code></a>(index)</p></td>
+<td><p>Get the name of a global parameter with respect to which this Force should compute the derivative of the energy.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#openmmlab.ExtendedCustomCVForce.getForceGroup" title="openmmlab.ExtendedCustomCVForce.getForceGroup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getForceGroup</span></code></a>(self)</p></td>
+<td><p>Get the force group this Force belongs to.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#openmmlab.ExtendedCustomCVForce.getGlobalParameterDefaultValue" title="openmmlab.ExtendedCustomCVForce.getGlobalParameterDefaultValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getGlobalParameterDefaultValue</span></code></a>(index)</p></td>
+<td><p>Get the default value of a global parameter.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#openmmlab.ExtendedCustomCVForce.getGlobalParameterName" title="openmmlab.ExtendedCustomCVForce.getGlobalParameterName"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getGlobalParameterName</span></code></a>(index)</p></td>
+<td><p>Get the name of a global parameter.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#openmmlab.ExtendedCustomCVForce.getInnerContext" title="openmmlab.ExtendedCustomCVForce.getInnerContext"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getInnerContext</span></code></a>(context)</p></td>
+<td><p>Get the inner Context used for evaluating collective variables.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#openmmlab.ExtendedCustomCVForce.getName" title="openmmlab.ExtendedCustomCVForce.getName"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getName</span></code></a>(self)</p></td>
+<td><p>Get the name of this Force.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#openmmlab.ExtendedCustomCVForce.getNumCollectiveVariables" title="openmmlab.ExtendedCustomCVForce.getNumCollectiveVariables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getNumCollectiveVariables</span></code></a>()</p></td>
+<td><p>Get the number of collective variables that the interaction depends on.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#openmmlab.ExtendedCustomCVForce.getNumEnergyParameterDerivatives" title="openmmlab.ExtendedCustomCVForce.getNumEnergyParameterDerivatives"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getNumEnergyParameterDerivatives</span></code></a>()</p></td>
+<td><p>Get the number of global parameters with respect to which the derivative of the energy should be computed.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#openmmlab.ExtendedCustomCVForce.getNumGlobalParameters" title="openmmlab.ExtendedCustomCVForce.getNumGlobalParameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getNumGlobalParameters</span></code></a>()</p></td>
+<td><p>Get the number of global parameters that the interaction depends on.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#openmmlab.ExtendedCustomCVForce.getNumTabulatedFunctions" title="openmmlab.ExtendedCustomCVForce.getNumTabulatedFunctions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getNumTabulatedFunctions</span></code></a>()</p></td>
+<td><p>Get the number of tabulated functions that have been defined.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#openmmlab.ExtendedCustomCVForce.getTabulatedFunction" title="openmmlab.ExtendedCustomCVForce.getTabulatedFunction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getTabulatedFunction</span></code></a>(*args)</p></td>
+<td><p><em>Overload 1:</em></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#openmmlab.ExtendedCustomCVForce.getTabulatedFunctionName" title="openmmlab.ExtendedCustomCVForce.getTabulatedFunctionName"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getTabulatedFunctionName</span></code></a>(index)</p></td>
+<td><p>Get the name of a tabulated function that may appear in the energy expression.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#openmmlab.ExtendedCustomCVForce.setEnergyFunction" title="openmmlab.ExtendedCustomCVForce.setEnergyFunction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setEnergyFunction</span></code></a>(energy)</p></td>
+<td><p>Set the algebraic expression that gives the energy of the system</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#openmmlab.ExtendedCustomCVForce.setForceGroup" title="openmmlab.ExtendedCustomCVForce.setForceGroup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setForceGroup</span></code></a>(self, group)</p></td>
+<td><p>Set the force group this Force belongs to.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#openmmlab.ExtendedCustomCVForce.setGlobalParameterDefaultValue" title="openmmlab.ExtendedCustomCVForce.setGlobalParameterDefaultValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setGlobalParameterDefaultValue</span></code></a>(index, ...)</p></td>
+<td><p>Set the default value of a global parameter.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setGlobalParameterName</span></code>(index, name)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#openmmlab.ExtendedCustomCVForce.setName" title="openmmlab.ExtendedCustomCVForce.setName"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setName</span></code></a>(self, name)</p></td>
+<td><p>Set the name of this Force.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#openmmlab.ExtendedCustomCVForce.updateParametersInContext" title="openmmlab.ExtendedCustomCVForce.updateParametersInContext"><code class="xref py py-obj docutils literal notranslate"><span class="pre">updateParametersInContext</span></code></a>(context)</p></td>
+<td><p>Update the tabulated function parameters in a Context to match those stored in this Force object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#openmmlab.ExtendedCustomCVForce.usesPeriodicBoundaryConditions" title="openmmlab.ExtendedCustomCVForce.usesPeriodicBoundaryConditions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">usesPeriodicBoundaryConditions</span></code></a>()</p></td>
+<td><p>Returns whether or not this force makes use of periodic boundary conditions.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">thisown</span></code></p></td>
+<td><p>The membership flag</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.ExtendedCustomCVForce.addCollectiveVariable">
+<span class="sig-name descname"><span class="pre">addCollectiveVariable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.ExtendedCustomCVForce.addCollectiveVariable" title="Link to this definition">¶</a></dt>
+<dd><p>Add a collective variable that the force may depend on.  The collective variable
+is represented by a Force object, which should have been created on the heap with the
+“new” operator.  The ExtendedCustomCVForce takes over ownership of it, and deletes the Force when the
+ExtendedCustomCVForce itself is deleted.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – the name of the collective variable, as it will appear in the energy expression</p></li>
+<li><p><strong>variable</strong> (<em>Force</em>) – the collective variable, represented by a Force object.  The value of the
+variable is the energy computed by the Force.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>int</em> – the index within the Force of the variable that was added</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.ExtendedCustomCVForce.addEnergyParameterDerivative">
+<span class="sig-name descname"><span class="pre">addEnergyParameterDerivative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.ExtendedCustomCVForce.addEnergyParameterDerivative" title="Link to this definition">¶</a></dt>
+<dd><p>Request that this Force compute the derivative of its energy with respect to a global parameter.
+The parameter must have already been added with addGlobalParameter().</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – the name of the parameter</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.ExtendedCustomCVForce.addGlobalParameter">
+<span class="sig-name descname"><span class="pre">addGlobalParameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defaultValue</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.ExtendedCustomCVForce.addGlobalParameter" title="Link to this definition">¶</a></dt>
+<dd><p>Add a new global parameter that the interaction may depend on.  The default value provided to
+this method is the initial value of the parameter in newly created Contexts.  You can change
+the value at any time by calling setParameter() on the Context.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – the name of the parameter</p></li>
+<li><p><strong>default_value</strong> (<em>float</em>) – the default value of the parameter</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>int</em> – the index of the parameter that was added</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.ExtendedCustomCVForce.addTabulatedFunction">
+<span class="sig-name descname"><span class="pre">addTabulatedFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.ExtendedCustomCVForce.addTabulatedFunction" title="Link to this definition">¶</a></dt>
+<dd><p>Add a tabulated function that may appear in the energy expression.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – the name of the function</p></li>
+<li><p><strong>function</strong> (<em>TabulatedFunction</em>) – a TabulatedFunction object defining the function</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>int</em> – the index of the function that was added</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.ExtendedCustomCVForce.getCollectiveVariable">
+<span class="sig-name descname"><span class="pre">getCollectiveVariable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.ExtendedCustomCVForce.getCollectiveVariable" title="Link to this definition">¶</a></dt>
+<dd><p><em>Overload 1:</em></p>
+<p>Get a writable reference to the Force object that computes a collective variable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>index</strong> (<em>int</em>) – the index of the collective variable to get</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>Force</em> – the Force object</p></li>
+<li><p><em>|</em></p></li>
+<li><p><strong>*Overload 2</strong> (<a href="#id1"><span class="problematic" id="id2">**</span></a><a href="#id3"><span class="problematic" id="id4">*</span></a>)</p></li>
+<li><p><em>Get a const reference to the Force object that computes a collective variable.</em></p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>index</strong> (<em>int</em>) – the index of the collective variable to get</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>const Force</em> – the Force object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.ExtendedCustomCVForce.getCollectiveVariableName">
+<span class="sig-name descname"><span class="pre">getCollectiveVariableName</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.ExtendedCustomCVForce.getCollectiveVariableName" title="Link to this definition">¶</a></dt>
+<dd><p>Get the name of a collective variable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>index</strong> (<em>int</em>) – the index of the collective variable for which to get the name</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>str</em> – the variable name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.ExtendedCustomCVForce.getEnergyFunction">
+<span class="sig-name descname"><span class="pre">getEnergyFunction</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.ExtendedCustomCVForce.getEnergyFunction" title="Link to this definition">¶</a></dt>
+<dd><p>Get the algebraic expression that gives the energy of the system</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.ExtendedCustomCVForce.getEnergyParameterDerivativeName">
+<span class="sig-name descname"><span class="pre">getEnergyParameterDerivativeName</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.ExtendedCustomCVForce.getEnergyParameterDerivativeName" title="Link to this definition">¶</a></dt>
+<dd><p>Get the name of a global parameter with respect to which this Force should compute the
+derivative of the energy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>index</strong> (<em>int</em>) – the index of the parameter derivative, between 0 and getNumEnergyParameterDerivatives()</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>str</em> – the parameter name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.ExtendedCustomCVForce.getForceGroup">
+<span class="sig-name descname"><span class="pre">getForceGroup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#openmmlab.ExtendedCustomCVForce.getForceGroup" title="Link to this definition">¶</a></dt>
+<dd><p>Get the force group this Force belongs to.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.ExtendedCustomCVForce.getGlobalParameterDefaultValue">
+<span class="sig-name descname"><span class="pre">getGlobalParameterDefaultValue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.ExtendedCustomCVForce.getGlobalParameterDefaultValue" title="Link to this definition">¶</a></dt>
+<dd><p>Get the default value of a global parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>index</strong> (<em>int</em>) – the index of the parameter for which to get the default value</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>float</em> – the parameter default value</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.ExtendedCustomCVForce.getGlobalParameterName">
+<span class="sig-name descname"><span class="pre">getGlobalParameterName</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.ExtendedCustomCVForce.getGlobalParameterName" title="Link to this definition">¶</a></dt>
+<dd><p>Get the name of a global parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>index</strong> (<em>int</em>) – the index of the parameter for which to get the name</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>str</em> – the parameter name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.ExtendedCustomCVForce.getInnerContext">
+<span class="sig-name descname"><span class="pre">getInnerContext</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.ExtendedCustomCVForce.getInnerContext" title="Link to this definition">¶</a></dt>
+<dd><p>Get the inner Context used for evaluating collective variables.</p>
+<p>When you create a Context for a System that contains a ExtendedCustomCVForce, internally
+it creates a new System, adds the Forces that define the CVs to it, creates a new
+Context for that System, and uses it to evaluate the variables.  In most cases you
+can ignore all of this.  It is just an implementation detail.  However, there are
+a few cases where you need to directly access that internal Context.  For example,
+if you want to modify one of the Forces that defines a collective variable and
+call updateParametersInContext() on it, you need to pass that inner Context to it.
+This method returns a reference to it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>context</strong> (<em>Context</em>) – the Context</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Context</em> – the inner Context used to evaluate the collective variables</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.ExtendedCustomCVForce.getName">
+<span class="sig-name descname"><span class="pre">getName</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">std::string</span> <span class="pre">const</span> <span class="pre">&amp;</span></span></span><a class="headerlink" href="#openmmlab.ExtendedCustomCVForce.getName" title="Link to this definition">¶</a></dt>
+<dd><p>Get the name of this Force. This is an arbitrary, user modifiable identifier. By default it equals the class name, but you can change it to anything useful.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.ExtendedCustomCVForce.getNumCollectiveVariables">
+<span class="sig-name descname"><span class="pre">getNumCollectiveVariables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.ExtendedCustomCVForce.getNumCollectiveVariables" title="Link to this definition">¶</a></dt>
+<dd><p>Get the number of collective variables that the interaction depends on.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.ExtendedCustomCVForce.getNumEnergyParameterDerivatives">
+<span class="sig-name descname"><span class="pre">getNumEnergyParameterDerivatives</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.ExtendedCustomCVForce.getNumEnergyParameterDerivatives" title="Link to this definition">¶</a></dt>
+<dd><p>Get the number of global parameters with respect to which the derivative of the energy
+should be computed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.ExtendedCustomCVForce.getNumGlobalParameters">
+<span class="sig-name descname"><span class="pre">getNumGlobalParameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.ExtendedCustomCVForce.getNumGlobalParameters" title="Link to this definition">¶</a></dt>
+<dd><p>Get the number of global parameters that the interaction depends on.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.ExtendedCustomCVForce.getNumTabulatedFunctions">
+<span class="sig-name descname"><span class="pre">getNumTabulatedFunctions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.ExtendedCustomCVForce.getNumTabulatedFunctions" title="Link to this definition">¶</a></dt>
+<dd><p>Get the number of tabulated functions that have been defined.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.ExtendedCustomCVForce.getTabulatedFunction">
+<span class="sig-name descname"><span class="pre">getTabulatedFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.ExtendedCustomCVForce.getTabulatedFunction" title="Link to this definition">¶</a></dt>
+<dd><p><em>Overload 1:</em></p>
+<p>Get a const reference to a tabulated function that may appear in the energy expression.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>index</strong> (<em>int</em>) – the index of the function to get</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>const TabulatedFunction</em> – the TabulatedFunction object defining the function</p></li>
+<li><p><em>|</em></p></li>
+<li><p><strong>*Overload 2</strong> (<a href="#id5"><span class="problematic" id="id6">**</span></a><a href="#id7"><span class="problematic" id="id8">*</span></a>)</p></li>
+<li><p><em>Get a reference to a tabulated function that may appear in the energy expression.</em></p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>index</strong> (<em>int</em>) – the index of the function to get</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>TabulatedFunction</em> – the TabulatedFunction object defining the function</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.ExtendedCustomCVForce.getTabulatedFunctionName">
+<span class="sig-name descname"><span class="pre">getTabulatedFunctionName</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.ExtendedCustomCVForce.getTabulatedFunctionName" title="Link to this definition">¶</a></dt>
+<dd><p>Get the name of a tabulated function that may appear in the energy expression.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>index</strong> (<em>int</em>) – the index of the function to get</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>str</em> – the name of the function as it appears in expressions</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.ExtendedCustomCVForce.setEnergyFunction">
+<span class="sig-name descname"><span class="pre">setEnergyFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.ExtendedCustomCVForce.setEnergyFunction" title="Link to this definition">¶</a></dt>
+<dd><p>Set the algebraic expression that gives the energy of the system</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.ExtendedCustomCVForce.setForceGroup">
+<span class="sig-name descname"><span class="pre">setForceGroup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.ExtendedCustomCVForce.setForceGroup" title="Link to this definition">¶</a></dt>
+<dd><p>Set the force group this Force belongs to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>group</strong> (<em>int</em>) – the group index. Legal values are between 0 and 31 (inclusive).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.ExtendedCustomCVForce.setGlobalParameterDefaultValue">
+<span class="sig-name descname"><span class="pre">setGlobalParameterDefaultValue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defaultValue</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.ExtendedCustomCVForce.setGlobalParameterDefaultValue" title="Link to this definition">¶</a></dt>
+<dd><p>Set the default value of a global parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index</strong> (<em>int</em>) – the index of the parameter for which to set the default value</p></li>
+<li><p><strong>default_value</strong> (<em>float</em>) – the default value of the parameter</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>float</em> – the parameter default value</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.ExtendedCustomCVForce.setName">
+<span class="sig-name descname"><span class="pre">setName</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.ExtendedCustomCVForce.setName" title="Link to this definition">¶</a></dt>
+<dd><p>Set the name of this Force. This is an arbitrary, user modifiable identifier. By default it equals the class name, but you can change it to anything useful.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.ExtendedCustomCVForce.updateParametersInContext">
+<span class="sig-name descname"><span class="pre">updateParametersInContext</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.ExtendedCustomCVForce.updateParametersInContext" title="Link to this definition">¶</a></dt>
+<dd><p>Update the tabulated function parameters in a Context to match those stored in this Force object.  This method
+provides an efficient method to update certain parameters in an existing Context without needing to reinitialize it.
+Simply call getTabulatedFunction(index).setFunctionParameters() to modify this object’s parameters, then call
+updateParametersInContext() to copy them over to the Context.</p>
+<p>This method is very limited.  The only information it updates is the parameters of tabulated functions.
+All other aspects of the Force (the energy expression, the set of collective variables, etc.) are unaffected and can
+only be changed by reinitializing the Context.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.ExtendedCustomCVForce.usesPeriodicBoundaryConditions">
+<span class="sig-name descname"><span class="pre">usesPeriodicBoundaryConditions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.ExtendedCustomCVForce.usesPeriodicBoundaryConditions" title="Link to this definition">¶</a></dt>
+<dd><p>Returns whether or not this force makes use of periodic boundary
+conditions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>bool</em> – true if force uses PBC and false otherwise</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/logo_small.png" alt="Logo"/>
+    
+    <h1 class="logo logo-name">OpenMM Laboratory</h1>
+    
+  </a>
+</p>
+
+
+
+
+
+
+
+
+
+
+
+<h3><a href="../index.html">Table of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Python API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="SlicedNonbondedForce.html">SlicedNonbondedForce</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">ExtendedCustomCVForce</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Author</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, Charlles Abreu. Project based on OpenMM.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../_sources/pythonapi/ExtendedCustomCVForce.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
