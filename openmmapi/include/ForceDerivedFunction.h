@@ -12,9 +12,14 @@
  * -------------------------------------------------------------------------- */
 
 #include "internal/windowsExportOpenMMLab.h"
+#include "openmm/Force.h"
 #include "lepton/CustomFunction.h"
+#include <string>
+#include <vector>
 
+using namespace OpenMM;
 using namespace Lepton;
+using namespace std;
 
 namespace OpenMMLab {
 
@@ -30,7 +35,7 @@ public:
      * Get the number of arguments this function expects.
      */
     int getNumArguments() const {
-        return numArgs;
+        return arguments.size();
     };
     /**
      * Evaluate the function.
@@ -48,10 +53,42 @@ public:
      */
     double evaluateDerivative(const double* arguments, const int* derivOrder);
     /**
-     * Create a new duplicate of this object on the heap using the "new" operator.
+     * Add a new force to this function.
+     *
+     * @param force    the force to add
+     *
+     * @return the index of the force
      */
+    int addForce(Force* force);
+    /**
+     * Get the force at the given index.
+     *
+     * @param index    the index of the force to get
+     *
+     * @return the force at the given index
+     */
+    Force& getForce(int index);
+    /**
+     * Add a new argument to this function.
+     *
+     * @param particle  the particle index associated with the argument
+     * @param direction the spatial direction associated with the argument
+     *
+     * @return the index of the argument
+     */
+    int addArgument(int particle, const std::string& direction);
+    /**
+     * Get the argument at the given index.
+     *
+     * @param index    the index of the argument to get
+     *
+     * @return the argument at the given index
+     */
+    void getArgument(int index, int* particle, std::string* direction);
 private:
-    int numArgs;
+    class ArgumentInfo;
+    vector<Force*> forces;
+    vector<ArgumentInfo> arguments;
 };
 
 } // namespace OpenMMLab
