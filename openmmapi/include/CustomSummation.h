@@ -13,7 +13,7 @@
 
 #include "internal/windowsExportOpenMMLab.h"
 #include "openmm/Context.h"
-#include "openmm/CustomExternalForce.h"
+#include "openmm/CustomCompoundBondForce.h"
 #include "openmm/Platform.h"
 #include "lepton/CustomFunction.h"
 #include <map>
@@ -38,7 +38,8 @@ public:
      * @param numArgs             the number of arguments
      * @param expression          the expression for the function
      * @param overallParameters   the names and default values of the parameters that
-     *                            are shared by all terms of the summation
+     *                            are shared by all terms of the summation. Not to be
+     *                            confused with global context parameters.
      * @param perTermParameters   the names of the parameters that are unique to each
      *                            term of the summation
      * @param platform            the platform that will be used to evaluate the
@@ -78,6 +79,12 @@ public:
      */
     CustomSummation *clone() const;
     /**
+     * Get the number of overall parameters.
+     *
+     * @return         the number of overall parameters
+     */
+    int getNumOverallParameters() const;
+    /**
      * Get the name of a overall parameter.
      *
      * @param index    the index of the overall parameter for which to get the name
@@ -91,9 +98,50 @@ public:
      * @return         the overall parameter value
      */
     double getOverallParameterDefaultValue(int index) const;
+    /**
+     * Get the number of per-term parameters.
+     *
+     * @return         the number of per-term parameters
+     */
+    int getNumPerTermParameters() const;
+    /**
+     * Get the name of a per-term parameter.
+     *
+     * @param index    the index of the per-term parameter for which to get the name
+     * @return         the per-term parameter name
+     */
+    const std::string &getPerTermParameterName(int index) const;
+    /**
+     * Add a term to the summation.
+     *
+     * @param parameters    the parameters of the term
+     * @return              the index of the new term
+     */
+    int addTerm(vector<double> parameters);
+    /**
+     * Get the number of terms in the summation.
+     *
+     * @return         the number of terms
+     */
+    int getNumTerms() const { return force->getNumBonds(); }
+    /**
+     * Get the parameters of a term.
+     *
+     * @param index    the index of the term
+     * @return         the parameters of the term
+    */
+    vector<double> getTermParameters(int index) const;
+    /**
+     * Set the parameters of a term.
+     *
+     * @param index    the index of the term
+     * @param parameters    the parameters of the term
+     */
+    void setTermParameters(int index, vector<double> parameters);
 private:
     int numArgs;
-    CustomExternalForce *force;
+    vector<int> particles;
+    CustomCompoundBondForce *force;
     Context *context;
 };
 

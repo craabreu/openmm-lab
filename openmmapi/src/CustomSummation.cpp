@@ -19,7 +19,9 @@
 #include <regex>
 #include <string>
 
-#define ASSERT_INDEX(index, num) {if (index < 0 || index >= num) throwException(__FILE__, __LINE__, "Index out of range");};
+#define ASSERT_INDEX(index, num) { \
+    if (index < 0 || index >= num) throwException(__FILE__, __LINE__, "Index out of range"); \
+};
 
 using namespace OpenMM;
 using namespace OpenMMLab;
@@ -54,15 +56,21 @@ CustomSummation::CustomSummation(
     Platform &platform,
     const map<string, string> &properties
 ) : numArgs(numArgs) {
-    force = new CustomExternalForce(replaceSymbols(expression, numArgs));
+
+    int numParticles = (numArgs + 2) / 3;
+    particles = vector<int>(numParticles);
+    System *system = new System();
+    for (int i = 0; i < numParticles; i++) {
+        particles[i] = i;
+        system->addParticle(1.0);
+    }
+
+    force = new CustomCompoundBondForce(numParticles, replaceSymbols(expression, numArgs));
+    force->setUsesPeriodicBoundaryConditions(false);
     for (const auto& pair : overallParameters)
         force->addGlobalParameter(pair.first, pair.second);
     for (const auto& name : perTermParameters)
-        force->addPerParticleParameter(name);
-
-    System *system = new System();
-    for (int i = 0; i < (numArgs + 2) / 3; i++)
-        system->addParticle(1.0);
+        force->addPerBondParameter(name);
     system->addForce(force);
 
     VerletIntegrator *integrator = new VerletIntegrator(0.01);
@@ -91,8 +99,8 @@ CustomSummation* CustomSummation::clone() const {
             force->getGlobalParameterName(i)
         ] = force->getGlobalParameterDefaultValue(i);
     vector<string> perTermParameters;
-    for (int i = 0; i < force->getNumPerParticleParameters(); i++)
-        perTermParameters.push_back(force->getPerParticleParameterName(i));
+    for (int i = 0; i < force->getNumPerBondParameters(); i++)
+        perTermParameters.push_back(force->getPerBondParameterName(i));
     CustomSummation *summation = new CustomSummation(
         numArgs, expression, overallParameters, perTermParameters, *platform
     );
@@ -104,6 +112,10 @@ CustomSummation* CustomSummation::clone() const {
     return summation;
 }
 
+int CustomSummation::getNumOverallParameters() const {
+    return force->getNumGlobalParameters();
+}
+
 const string& CustomSummation::getOverallParameterName(int index) const {
     ASSERT_INDEX(index, force->getNumGlobalParameters());
     return force->getGlobalParameterName(index);
@@ -112,4 +124,33 @@ const string& CustomSummation::getOverallParameterName(int index) const {
 double CustomSummation::getOverallParameterDefaultValue(int index) const {
     ASSERT_INDEX(index, force->getNumGlobalParameters());
     return context->getParameter(force->getGlobalParameterName(index));
+}
+
+int CustomSummation::getNumPerTermParameters() const {
+    return force->getNumPerBondParameters();
+}
+
+const string& CustomSummation::getPerTermParameterName(int index) const {
+    ASSERT_INDEX(index, force->getNumPerBondParameters());
+    return force->getPerBondParameterName(index);
+}
+
+int CustomSummation::addTerm(vector<double> parameters) {
+    force->addBond(particles, parameters);
+    context->reinitialize();
+    return force->getNumBonds() - 1;
+}
+
+vector<double> CustomSummation::getTermParameters(int index) const {
+    ASSERT_INDEX(index, force->getNumBonds());
+    vector<int> particles;
+    vector<double> parameters;
+    force->getBondParameters(index, particles, parameters);
+    return parameters;
+}
+
+void CustomSummation::setTermParameters(int index, vector<double> parameters) {
+    ASSERT_INDEX(index, force->getNumBonds());
+    force->setBondParameters(index, particles, parameters);
+    force->updateParametersInContext(*context);
 }
