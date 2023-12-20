@@ -16,6 +16,7 @@
 #include "openmm/CustomCompoundBondForce.h"
 #include "openmm/Platform.h"
 #include "lepton/CustomFunction.h"
+#include "openmm/internal/ContextImpl.h"
 #include <map>
 #include <string>
 #include <vector>
@@ -138,11 +139,43 @@ public:
      * @param parameters    the parameters of the term
      */
     void setTermParameters(int index, vector<double> parameters);
+    /**
+     * Set the value of an overall parameter.
+     *
+     * @param name    the name of the parameter
+     * @param value   the value of the parameter
+     */
+    void setOverallParameter(const string &name, double value);
 private:
+    class Evaluator;
     int numArgs;
     vector<int> particles;
     CustomCompoundBondForce *force;
+    Evaluator *evaluator;
+};
+
+class CustomSummation::Evaluator {
+public:
+    Evaluator(
+        int NumArgs,
+        CustomCompoundBondForce &force,
+        Platform &platform,
+        const map<string, string> &properties
+    );
+    ~Evaluator();
+    double evaluate(vector<double> arguments);
+    vector<double> evaluateDerivatives(vector<double> arguments);
+
     Context *context;
+private:
+    void setPositions(vector<double> arguments);
+    int numArgs;
+    vector<Vec3> positions;
+    vector<double> latestArguments;
+    double value;
+    bool valueIsDirty;
+    vector<double> derivatives;
+    bool derivativesAreDirty;
 };
 
 } // namespace OpenMMLab
