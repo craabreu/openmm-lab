@@ -37,7 +37,7 @@ public:
      * Construct a new CustomSummation object.
      *
      * @param numArgs             the number of arguments
-     * @param expression          the expression for the function
+     * @param expression          the expression for each term in the summation
      * @param overallParameters   the names and default values of the parameters that
      *                            are shared by all terms of the summation. Not to be
      *                            confused with global context parameters.
@@ -63,9 +63,15 @@ public:
     /**
      * Evaluate the function.
      *
-     * @param arguments    the array of argument values
+     * @param arguments    an array of argument values
      */
     double evaluate(const double *arguments) const;
+    /**
+     * Evaluate the function.
+     *
+     * @param arguments    a vector of argument values
+     */
+    double evaluate(const vector<double> &arguments) const;
     /**
      * Evaluate a derivative of the function.
      *
@@ -76,9 +82,22 @@ public:
      */
     double evaluateDerivative(const double *arguments, const int *derivOrder) const;
     /**
+     * Evaluate a derivative of the function.
+     *
+     * @param arguments    a vector of argument values
+     * @param which        the index of the argument for which to evaluate the derivative
+     */
+    double evaluateDerivative(const vector<double> &arguments, int which) const;
+    /**
      * Create a new duplicate of this object on the heap using the "new" operator.
      */
     CustomSummation *clone() const;
+    /**
+     * Get the expression for each term of the summation.
+     *
+     * @return         the expression
+     */
+    const string &getExpression() const { return force->getEnergyFunction(); }
     /**
      * Get the number of overall parameters.
      *
@@ -157,7 +176,7 @@ private:
 class CustomSummation::Evaluator {
 public:
     Evaluator(
-        int NumArgs,
+        int numArgs,
         CustomCompoundBondForce &force,
         Platform &platform,
         const map<string, string> &properties
@@ -165,7 +184,6 @@ public:
     ~Evaluator();
     double evaluate(vector<double> arguments);
     vector<double> evaluateDerivatives(vector<double> arguments);
-
     Context *context;
 private:
     void setPositions(vector<double> arguments);

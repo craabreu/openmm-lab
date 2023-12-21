@@ -22,6 +22,8 @@
 #include <regex>
 #include <string>
 
+#include <iostream>  // temporary
+
 #define ASSERT_INDEX(index, num) { \
     if (index < 0 || index >= num) throwException(__FILE__, __LINE__, "Index out of range"); \
 };
@@ -31,15 +33,15 @@ using namespace OpenMMLab;
 using namespace std;
 
 CustomSummation::Evaluator::Evaluator(
-    int NumArgs,
+    int numArgs,
     CustomCompoundBondForce &force,
     Platform &platform,
     const map<string, string> &properties
 ) : numArgs(numArgs), valueIsDirty(true), derivativesAreDirty(true) {
     int numParticles = force.getNumParticlesPerBond();
     positions.resize(numParticles, Vec3(0, 0, 0));
-    latestArguments.resize(NumArgs);
-    derivatives.resize(NumArgs);
+    latestArguments.resize(numArgs);
+    derivatives.resize(numArgs);
 
     System *system = new System();
     for (int i = 0; i < numParticles; i++)
@@ -93,7 +95,10 @@ CustomSummation::CustomSummation(
     Platform &platform,
     const map<string, string> &properties
 ) : numArgs(numArgs) {
-    force = new CustomCompoundBondForce((numArgs + 2) / 3, expression);
+    int numParticles = (numArgs  + 2)/ 3;
+    for (int i = 0; i < numParticles; i++)
+        particles.push_back(i);
+    force = new CustomCompoundBondForce(numParticles, expression);
     force->setUsesPeriodicBoundaryConditions(false);
     for (const auto& pair : overallParameters)
         force->addGlobalParameter(pair.first, pair.second);
@@ -108,6 +113,10 @@ CustomSummation::~CustomSummation() {
 
 double CustomSummation::evaluate(const double* arguments) const {
     return evaluator->evaluate(vector<double>(arguments, arguments + numArgs));
+}
+
+double CustomSummation::evaluate(const vector<double> &arguments) const {
+    return evaluator->evaluate(arguments);
 }
 
 double CustomSummation::evaluateDerivative(const double* arguments, const int* derivOrder) const {
@@ -127,6 +136,10 @@ double CustomSummation::evaluateDerivative(const double* arguments, const int* d
         vector<double>(arguments, arguments + numArgs)
     );
     return derivatives[index];
+}
+
+double CustomSummation::evaluateDerivative(const vector<double> &arguments, int which) const {
+    return evaluator->evaluateDerivatives(arguments)[which];
 }
 
 CustomSummation* CustomSummation::clone() const {
