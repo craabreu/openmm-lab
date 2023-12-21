@@ -67,12 +67,48 @@ void testSimpleSummation() {
     ASSERT_EQUAL(summation.evaluateDerivative(newArgs, 1), 2*b);
     ASSERT_EQUAL(summation.evaluateDerivative(newArgs, 0), 2*a);
     ASSERT_EQUAL(summation.evaluate(newArgs), (2*(a+b)+c+f+d+g)*x1+e+h);
+
+    delete[] args;
+    delete[] derivOrder;
+}
+
+void testCloning() {
+    const double a = 1.0, b = 2.0, c = 3.0, d = 4.0, e = 5.0, f = 6.0, g = 7.0;
+    const double x1 = 1.0, y1 = 2.0;
+    map<string, double> overallParameters = {{"a", a}};
+    vector<string> perTermParameters = {"b", "c"};
+    CustomSummation summation(
+        2,
+        "a*x1+b*y1+c",
+        overallParameters,
+        perTermParameters,
+        platform,
+        properties
+    );
+    summation.addTerm(vector<double>{b, c});
+    summation.addTerm(vector<double>{d, e});
+    summation.addTerm(vector<double>{f, g});
+    CustomSummation *copy = summation.clone();
+    ASSERT_EQUAL(copy->getExpression(), "a*x1+b*y1+c");
+    ASSERT_EQUAL(copy->getNumArguments(), 2);
+    ASSERT_EQUAL(copy->getNumPerTermParameters(), 2);
+    ASSERT_EQUAL(copy->getNumTerms(), 3);
+    ASSERT_EQUAL(copy->getNumOverallParameters(), 1);
+    ASSERT_EQUAL(copy->getOverallParameterName(0), "a");
+    ASSERT_EQUAL(copy->getOverallParameterDefaultValue(0), a);
+    ASSERT_EQUAL(
+        copy->evaluate(vector<double>{x1, y1}),
+        3*a*x1+(b+d+f)*y1+c+e+g
+    )
+
+    delete copy;
 }
 
 int main(int argc, char* argv[]) {
     try {
         initializeTests(argc, argv);
         testSimpleSummation();
+        testCloning();
     }
     catch(const exception& e) {
         cout << "exception: " << e.what() << endl;

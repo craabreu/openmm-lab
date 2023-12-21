@@ -40,12 +40,12 @@ public:
      * @param expression          the expression for each term in the summation
      * @param overallParameters   the names and default values of the parameters that
      *                            are shared by all terms of the summation. Not to be
-     *                            confused with global context parameters.
+     *                            confused with global context parameters
      * @param perTermParameters   the names of the parameters that are unique to each
      *                            term of the summation
      * @param platform            the platform that will be used to evaluate the
      *                            summation
-     * @param properties          a set of values for platform-specific properties.
+     * @param properties          a set of values for platform-specific properties
      */
     CustomSummation(
         int numArgs,
@@ -132,7 +132,17 @@ public:
      */
     const std::string &getPerTermParameterName(int index) const;
     /**
-     * Add a term to the summation.
+     * Get the platform that will be used to evaluate the summation.
+     *
+     * @return         the platform
+     */
+    Platform &getPlatform() const { return *platform; }
+    /**
+     * Get the platform-specific properties used to set the summation.
+    */
+    const map<string, string> &getProperties() const { return properties; }
+    /**
+     * Add a new term to the summation.
      *
      * @param parameters    the parameters of the term
      * @return              the index of the new term
@@ -159,18 +169,27 @@ public:
      */
     void setTerm(int index, vector<double> parameters);
     /**
+     * Get the value of an overall parameter.
+     *
+     * @param name    the name of the parameter
+     * @return        the value of the parameter
+     */
+    double getParameter(const string &name) const;
+    /**
      * Set the value of an overall parameter.
      *
      * @param name    the name of the parameter
      * @param value   the value of the parameter
      */
-    void setOverallParameter(const string &name, double value);
+    void setParameter(const string &name, double value);
 private:
     class Evaluator;
     int numArgs;
     vector<int> particles;
     CustomCompoundBondForce *force;
     Evaluator *evaluator;
+    Platform *platform;
+    map<string, string> properties;
 };
 
 class CustomSummation::Evaluator {
@@ -188,7 +207,6 @@ public:
     void reset();
     double getParameter(const string &name) const;
     void setParameter(const string &name, double value);
-    Platform &getPlatform() const { return context->getPlatform(); }
 private:
     void setPositions(vector<double> arguments);
     int numArgs;

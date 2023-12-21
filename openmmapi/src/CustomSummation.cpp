@@ -116,7 +116,7 @@ CustomSummation::CustomSummation(
     const vector<string> &perTermParameters,
     Platform &platform,
     const map<string, string> &properties
-) : numArgs(numArgs) {
+) : numArgs(numArgs), platform(&platform), properties(properties) {
     int numParticles = (numArgs  + 2)/ 3;
     for (int i = 0; i < numParticles; i++)
         particles.push_back(i);
@@ -162,25 +162,28 @@ double CustomSummation::evaluateDerivative(const vector<double> &arguments, int 
 
 CustomSummation* CustomSummation::clone() const {
     map<string, double> overallParameters;
-    for (int i = 0; i < force->getNumGlobalParameters(); i++) {
-        string name = force->getGlobalParameterName(i);
-        overallParameters[name] = force->getGlobalParameterDefaultValue(i);
+    for (int i = 0; i < getNumOverallParameters(); i++) {
+        string name = getOverallParameterName(i);
+        overallParameters[name] = getOverallParameterDefaultValue(i);
     }
     vector<string> perTermParameters;
-    for (int i = 0; i < force->getNumPerBondParameters(); i++)
-        perTermParameters.push_back(force->getPerBondParameterName(i));
-    CustomSummation *summation = new CustomSummation(
+    for (int i = 0; i < getNumPerTermParameters(); i++)
+        perTermParameters.push_back(getPerTermParameterName(i));
+    CustomSummation *copy = new CustomSummation(
         numArgs,
-        force->getEnergyFunction(),
+        getExpression(),
         overallParameters,
         perTermParameters,
-        evaluator->getPlatform()
+        getPlatform(),
+        getProperties()
     );
-    for (int i = 0; i < force->getNumGlobalParameters(); i++) {
-        string name = force->getGlobalParameterName(i);
-        summation->setOverallParameter(name, evaluator->getParameter(name));
+    for (int i = 0; i < getNumTerms(); i++)
+        copy->addTerm(getTerm(i));
+    for (int i = 0; i < getNumOverallParameters(); i++) {
+        string name = getOverallParameterName(i);
+        copy->setParameter(name, getParameter(name));
     }
-    return summation;
+    return copy;
 }
 
 int CustomSummation::getNumOverallParameters() const {
@@ -226,6 +229,10 @@ void CustomSummation::setTerm(int index, vector<double> parameters) {
     evaluator->update(*force);
 }
 
-void CustomSummation::setOverallParameter(const string &name, double value) {
+double CustomSummation::getParameter(const string &name) const {
+    return evaluator->getParameter(name);
+}
+
+void CustomSummation::setParameter(const string &name, double value) {
     evaluator->setParameter(name, value);
 }
