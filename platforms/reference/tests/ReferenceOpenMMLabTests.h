@@ -12,16 +12,15 @@
   #define _USE_MATH_DEFINES // Needed to get M_PI
 #endif
 #include "openmm/reference/ReferencePlatform.h"
+#include <map>
+#include <string>
 
 extern "C" OPENMM_EXPORT void registerOpenMMLabReferenceKernelFactories();
 
 OpenMM::ReferencePlatform platform;
+std::map<std::string, std::string> properties;
 
 void initializeTests(int argc, char* argv[]) {
     registerOpenMMLabReferenceKernelFactories();
     platform = dynamic_cast<OpenMM::ReferencePlatform&>(OpenMM::Platform::getPlatformByName("Reference"));
-    if (argc > 1)
-        platform.setPropertyDefaultValue("Precision", std::string(argv[1]));
-    if (argc > 2)
-        platform.setPropertyDefaultValue("DeviceIndex", std::string(argv[2]));
 }
