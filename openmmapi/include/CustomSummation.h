@@ -36,22 +36,22 @@ public:
     /**
      * Construct a new CustomSummation object.
      *
-     * @param numArgs             the number of arguments
-     * @param expression          the expression for each term in the summation
-     * @param overallParameters   the names and default values of the parameters that
-     *                            are shared by all terms of the summation. Not to be
-     *                            confused with global context parameters
-     * @param perTermParameters   the names of the parameters that are unique to each
-     *                            term of the summation
-     * @param platform            the platform that will be used to evaluate the
-     *                            summation
-     * @param properties          a set of values for platform-specific properties
+     * @param numArgs                the number of arguments
+     * @param expression             the expression for each term in the summation
+     * @param overallParameters      the names and default values of the parameters that
+     *                               are shared by all terms of the summation. Not to be
+     *                               confused with global context parameters
+     * @param perTermParameterNames  the names of the parameters that are unique to each
+     *                               term of the summation
+     * @param platform               the platform that will be used to evaluate the
+     *                               summation
+     * @param properties             a set of values for platform-specific properties
      */
     CustomSummation(
         int numArgs,
         const std::string &expression,
         const map<string, double> &overallParameters,
-        const vector<string> &perTermParameters,
+        const vector<string> &perTermParameterNames,
         Platform &platform,
         const map<string, string> &properties = map<string, string>()
     );
@@ -138,9 +138,9 @@ public:
      */
     Platform &getPlatform() const { return *platform; }
     /**
-     * Get the platform-specific properties used to set the summation.
+     * Get the platform properties.
     */
-    const map<string, string> &getProperties() const { return properties; }
+    const map<string, string> &getPlatformProperties() const;
     /**
      * Add a new term to the summation.
      *
@@ -189,7 +189,6 @@ private:
     CustomCompoundBondForce *force;
     Evaluator *evaluator;
     Platform *platform;
-    map<string, string> properties;
 };
 
 class CustomSummation::Evaluator {
@@ -207,6 +206,7 @@ public:
     void reset();
     double getParameter(const string &name) const;
     void setParameter(const string &name, double value);
+    const map<string, string> &getPlatformProperties() const;
 private:
     void setPositions(vector<double> arguments);
     int numArgs;

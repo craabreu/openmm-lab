@@ -108,15 +108,23 @@ void CustomSummation::Evaluator::setParameter(const string &name, double value) 
     contextIsUnchanged = false;
 }
 
+const map<string, string> &CustomSummation::Evaluator::getPlatformProperties() const {
+    Platform &platform = context->getPlatform();
+    vector<string> names = platform.getPropertyNames();
+    map<string, string> &properties = *new map<string, string>;
+    for (const auto& name : names)
+        properties[name] = platform.getPropertyValue(*context, name);
+    return properties;
+}
 
 CustomSummation::CustomSummation(
     int numArgs,
     const std::string &expression,
     const map<string, double> &overallParameters,
-    const vector<string> &perTermParameters,
+    const vector<string> &perTermParameterNames,
     Platform &platform,
     const map<string, string> &properties
-) : numArgs(numArgs), platform(&platform), properties(properties) {
+) : numArgs(numArgs), platform(&platform) {
     int numParticles = (numArgs  + 2)/ 3;
     for (int i = 0; i < numParticles; i++)
         particles.push_back(i);
@@ -124,7 +132,7 @@ CustomSummation::CustomSummation(
     force->setUsesPeriodicBoundaryConditions(false);
     for (const auto& pair : overallParameters)
         force->addGlobalParameter(pair.first, pair.second);
-    for (const auto& name : perTermParameters)
+    for (const auto& name : perTermParameterNames)
         force->addPerBondParameter(name);
     evaluator = new Evaluator(numArgs, *force, platform, properties);
 }
@@ -166,16 +174,16 @@ CustomSummation* CustomSummation::clone() const {
         string name = getOverallParameterName(i);
         overallParameters[name] = getOverallParameterDefaultValue(i);
     }
-    vector<string> perTermParameters;
+    vector<string> perTermParameterNames;
     for (int i = 0; i < getNumPerTermParameters(); i++)
-        perTermParameters.push_back(getPerTermParameterName(i));
+        perTermParameterNames.push_back(getPerTermParameterName(i));
     CustomSummation *copy = new CustomSummation(
         numArgs,
         getExpression(),
         overallParameters,
-        perTermParameters,
+        perTermParameterNames,
         getPlatform(),
-        getProperties()
+        getPlatformProperties()
     );
     for (int i = 0; i < getNumTerms(); i++)
         copy->addTerm(getTerm(i));
@@ -207,6 +215,10 @@ int CustomSummation::getNumPerTermParameters() const {
 const string& CustomSummation::getPerTermParameterName(int index) const {
     ASSERT_INDEX(index, force->getNumPerBondParameters());
     return force->getPerBondParameterName(index);
+}
+
+const map<string, string> &CustomSummation::getPlatformProperties() const {
+    return evaluator->getPlatformProperties();
 }
 
 int CustomSummation::addTerm(vector<double> parameters) {
