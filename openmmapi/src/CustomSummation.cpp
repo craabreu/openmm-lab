@@ -119,7 +119,7 @@ const map<string, string> &CustomSummation::Evaluator::getPlatformProperties() c
 
 CustomSummation::CustomSummation(
     int numArgs,
-    const std::string &expression,
+    const string &expression,
     const map<string, double> &overallParameters,
     const vector<string> &perTermParameterNames,
     Platform &platform,
