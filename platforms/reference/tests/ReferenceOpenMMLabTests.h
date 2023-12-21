@@ -23,8 +23,4 @@ std::map<std::string, std::string> properties;
 void initializeTests(int argc, char* argv[]) {
     registerOpenMMLabReferenceKernelFactories();
     platform = dynamic_cast<OpenMM::ReferencePlatform&>(OpenMM::Platform::getPlatformByName("Reference"));
-    if (argc > 1)
-        properties["Precision"] = std::string(argv[1]);
-    if (argc > 2)
-        properties["DeviceIndex"] = std::string(argv[2]);
 }
