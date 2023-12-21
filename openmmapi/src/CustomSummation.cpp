@@ -18,6 +18,7 @@
 #include "openmm/VerletIntegrator.h"
 #include "openmm/internal/AssertionUtilities.h"
 #include "openmm/internal/ContextImpl.h"
+
 #include <map>
 #include <regex>
 #include <string>
@@ -25,7 +26,8 @@
 #include <iostream>  // temporary
 
 #define ASSERT_INDEX(index, num) { \
-    if (index < 0 || index >= num) throwException(__FILE__, __LINE__, "Index out of range"); \
+    if (index < 0 || index >= num) \
+        throwException(__FILE__, __LINE__, "Index out of range"); \
 };
 
 using namespace OpenMM;
@@ -37,7 +39,7 @@ CustomSummation::Evaluator::Evaluator(
     CustomCompoundBondForce &force,
     Platform &platform,
     const map<string, string> &properties
-) : numArgs(numArgs), valueIsDirty(true), derivativesAreDirty(true) {
+) : numArgs(numArgs) {
     int numParticles = force.getNumParticlesPerBond();
     positions.resize(numParticles, Vec3(0, 0, 0));
     latestArguments.resize(numArgs);
@@ -50,6 +52,7 @@ CustomSummation::Evaluator::Evaluator(
 
     VerletIntegrator *integrator = new VerletIntegrator(0.01);
     context = new Context(*system, *integrator, platform, properties);
+    valueIsDirty = derivativesAreDirty = contextIsUnchanged = true;
 };
 
 CustomSummation::Evaluator::~Evaluator() {
@@ -57,14 +60,13 @@ CustomSummation::Evaluator::~Evaluator() {
 }
 
 void CustomSummation::Evaluator::setPositions(vector<double> arguments) {
-    if (equal(arguments.begin(), arguments.end(), latestArguments.begin()))
+    if (equal(arguments.begin(), arguments.end(), latestArguments.begin()) && contextIsUnchanged)
         return;
     for (int i = 0; i < numArgs; i++)
         positions[i / 3][i % 3] = arguments[i];
     context->setPositions(positions);
     latestArguments = arguments;
-    valueIsDirty = true;
-    derivativesAreDirty = true;
+    valueIsDirty = derivativesAreDirty = contextIsUnchanged = true;
 }
 
 double CustomSummation::Evaluator::evaluate(vector<double> arguments) {
@@ -86,6 +88,26 @@ vector<double> CustomSummation::Evaluator::evaluateDerivatives(vector<double> ar
     }
     return derivatives;
 }
+
+void CustomSummation::Evaluator::update(CustomCompoundBondForce &force) {
+    force.updateParametersInContext(*context);
+    contextIsUnchanged = false;
+}
+
+void CustomSummation::Evaluator::reset() {
+    context->reinitialize();
+    contextIsUnchanged = false;
+}
+
+double CustomSummation::Evaluator::getParameter(const string &name) const {
+    return context->getParameter(name);
+}
+
+void CustomSummation::Evaluator::setParameter(const string &name, double value) {
+    context->setParameter(name, value);
+    contextIsUnchanged = false;
+}
+
 
 CustomSummation::CustomSummation(
     int numArgs,
@@ -120,22 +142,18 @@ double CustomSummation::evaluate(const vector<double> &arguments) const {
 }
 
 double CustomSummation::evaluateDerivative(const double* arguments, const int* derivOrder) const {
-    int index;
-    int sum = 0;
+    vector<int> order(derivOrder, derivOrder + numArgs);
+    int which;
+    int acc = 0;
     for (int i = 0; i < numArgs; i++) {
-        if (derivOrder[i] < 0 || derivOrder[i] > 1)
-            throwException(__FILE__, __LINE__, "Invalid derivative order");
-        if (derivOrder[i] == 1) {
-            index = i;
-            sum++;
-        }
+        int item = order[i];
+        if (item < 0 || (acc += item) > 1)
+            throwException(__FILE__, __LINE__, "Invalid derivative order specification");
+        if (item == 1)
+            which = i;
     }
-    if (sum != 1)
-        throwException(__FILE__, __LINE__, "Exactly one derivative must be specified");
-    vector<double> derivatives = evaluator->evaluateDerivatives(
-        vector<double>(arguments, arguments + numArgs)
-    );
-    return derivatives[index];
+    vector<double> args(arguments, arguments + numArgs);
+    return evaluator->evaluateDerivatives(args)[which];
 }
 
 double CustomSummation::evaluateDerivative(const vector<double> &arguments, int which) const {
@@ -144,10 +162,10 @@ double CustomSummation::evaluateDerivative(const vector<double> &arguments, int 
 
 CustomSummation* CustomSummation::clone() const {
     map<string, double> overallParameters;
-    for (int i = 0; i < force->getNumGlobalParameters(); i++)
-        overallParameters[
-            force->getGlobalParameterName(i)
-        ] = force->getGlobalParameterDefaultValue(i);
+    for (int i = 0; i < force->getNumGlobalParameters(); i++) {
+        string name = force->getGlobalParameterName(i);
+        overallParameters[name] = force->getGlobalParameterDefaultValue(i);
+    }
     vector<string> perTermParameters;
     for (int i = 0; i < force->getNumPerBondParameters(); i++)
         perTermParameters.push_back(force->getPerBondParameterName(i));
@@ -156,11 +174,11 @@ CustomSummation* CustomSummation::clone() const {
         force->getEnergyFunction(),
         overallParameters,
         perTermParameters,
-        evaluator->context->getPlatform()
+        evaluator->getPlatform()
     );
     for (int i = 0; i < force->getNumGlobalParameters(); i++) {
         string name = force->getGlobalParameterName(i);
-        summation->setOverallParameter(name, evaluator->context->getParameter(name));
+        summation->setOverallParameter(name, evaluator->getParameter(name));
     }
     return summation;
 }
@@ -176,7 +194,7 @@ const string& CustomSummation::getOverallParameterName(int index) const {
 
 double CustomSummation::getOverallParameterDefaultValue(int index) const {
     ASSERT_INDEX(index, force->getNumGlobalParameters());
-    return evaluator->context->getParameter(force->getGlobalParameterName(index));
+    return evaluator->getParameter(force->getGlobalParameterName(index));
 }
 
 int CustomSummation::getNumPerTermParameters() const {
@@ -190,24 +208,24 @@ const string& CustomSummation::getPerTermParameterName(int index) const {
 
 int CustomSummation::addTerm(vector<double> parameters) {
     force->addBond(particles, parameters);
-    evaluator->context->reinitialize();
+    evaluator->reset();
     return force->getNumBonds() - 1;
 }
 
-vector<double> CustomSummation::getTermParameters(int index) const {
+vector<double> CustomSummation::getTerm(int index) const {
     ASSERT_INDEX(index, force->getNumBonds());
-    vector<int> particles;
+    vector<int> _;
     vector<double> parameters;
-    force->getBondParameters(index, particles, parameters);
+    force->getBondParameters(index, _, parameters);
     return parameters;
 }
 
-void CustomSummation::setTermParameters(int index, vector<double> parameters) {
+void CustomSummation::setTerm(int index, vector<double> parameters) {
     ASSERT_INDEX(index, force->getNumBonds());
     force->setBondParameters(index, particles, parameters);
-    force->updateParametersInContext(*evaluator->context);
+    evaluator->update(*force);
 }
 
 void CustomSummation::setOverallParameter(const string &name, double value) {
-    evaluator->context->setParameter(name, value);
+    evaluator->setParameter(name, value);
 }

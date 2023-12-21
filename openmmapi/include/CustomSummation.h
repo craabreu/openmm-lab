@@ -150,14 +150,14 @@ public:
      * @param index    the index of the term
      * @return         the parameters of the term
     */
-    vector<double> getTermParameters(int index) const;
+    vector<double> getTerm(int index) const;
     /**
      * Set the parameters of a term.
      *
      * @param index    the index of the term
      * @param parameters    the parameters of the term
      */
-    void setTermParameters(int index, vector<double> parameters);
+    void setTerm(int index, vector<double> parameters);
     /**
      * Set the value of an overall parameter.
      *
@@ -184,10 +184,16 @@ public:
     ~Evaluator();
     double evaluate(vector<double> arguments);
     vector<double> evaluateDerivatives(vector<double> arguments);
-    Context *context;
+    void update(CustomCompoundBondForce &force);
+    void reset();
+    double getParameter(const string &name) const;
+    void setParameter(const string &name, double value);
+    Platform &getPlatform() const { return context->getPlatform(); }
 private:
     void setPositions(vector<double> arguments);
     int numArgs;
+    Context *context;
+    bool contextIsUnchanged;
     vector<Vec3> positions;
     vector<double> latestArguments;
     double value;
