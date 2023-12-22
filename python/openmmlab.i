@@ -15,6 +15,7 @@ namespace std {
 
 %{
 #define OPENMM_VERSION_MAJOR @OPENMM_VERSION_MAJOR@
+#define SWIG_PYTHON_CAST_MODE
 #include "SlicedNonbondedForce.h"
 #include "CustomSummation.h"
 #include "ExtendedCustomCVForce.h"
@@ -23,14 +24,9 @@ namespace std {
 #include "OpenMMDrude.h"
 #include "openmm/RPMDIntegrator.h"
 #include "openmm/RPMDMonteCarloBarostat.h"
-#include "../lepton/CustomFunction.h"
-
-#define SWIG_PYTHON_CAST_MODE
 %}
 
 %pythoncode %{
-from openmm import unit
-
 __version__ = "@CMAKE_PROJECT_VERSION@"
 %}
 
@@ -957,7 +953,7 @@ public:
     /**
      * Get the number of arguments this function expects.
      */
-    int getNumArguments() const { return numArgs; }
+    int getNumArguments() const;
     /**
      * Evaluate the function.
      *
@@ -971,7 +967,7 @@ public:
      * float
      *     the value of the function
      */
-    double evaluate(const vector<double> &arguments) const;
+    double evaluate(const std::vector<double> &arguments) const;
     /**
      * Evaluate a derivative of the function.
      *
@@ -987,7 +983,7 @@ public:
      * float
      *     the value of the derivative
      */
-    double evaluateDerivative(const vector<double> &arguments, int which) const;
+    double evaluateDerivative(const std::vector<double> &arguments, int which) const;
     /**
      * Get the expression for each term of the summation.
      *
@@ -996,7 +992,7 @@ public:
      * str
      *     the expression
      */
-    const string &getExpression() const { return force->getEnergyFunction(); }
+    const std::string &getExpression() const;
     /**
      * Get the number of overall parameters.
      *
@@ -1065,7 +1061,7 @@ public:
      * :OpenMM:`Platform`
      *     the platform
      */
-    Platform &getPlatform() const { return *platform; }
+    Platform &getPlatform() const;
     /**
      * Get the platform properties.
      *
@@ -1074,7 +1070,7 @@ public:
      * Dict[str, str]
      *     the platform properties
     */
-    const map<string, string> &getPlatformProperties() const;
+    const std::map<std::string, std::string> &getPlatformProperties() const;
     /**
      * Add a new term to the summation.
      *
@@ -1088,7 +1084,7 @@ public:
      * int
      *     the index of the new term
      */
-    int addTerm(vector<double> parameters);
+    int addTerm(const std::vector<double> &parameters);
     /**
      * Get the number of terms in the summation.
      *
@@ -1097,7 +1093,7 @@ public:
      * int
      *     the number of terms
      */
-    int getNumTerms() const { return force->getNumBonds(); }
+    int getNumTerms() const;
     /**
      * Get the parameters of a term.
      *
@@ -1111,7 +1107,7 @@ public:
      * List[float]
      *     the parameters of the term
     */
-    vector<double> getTerm(int index) const;
+    const std::vector<double> &getTerm(int index) const;
     /**
      * Set the parameters of a term.
      *
@@ -1122,7 +1118,7 @@ public:
      *     parameters : List[float]
      *         the parameters of the term
      */
-    void setTerm(int index, vector<double> parameters);
+    void setTerm(int index, const std::vector<double> parameters);
     /**
      * Get the value of an overall parameter.
      *
@@ -1136,7 +1132,7 @@ public:
      * float
      *     the value of the parameter
      */
-    double getParameter(const string &name) const;
+    double getParameter(const std::string &name) const;
     /**
      * Set the value of an overall parameter.
      *
@@ -1147,7 +1143,7 @@ public:
      *     value : float
      *         the value of the parameter
      */
-    void setParameter(const string &name, double value);
+    void setParameter(const std::string &name, double value);
 };
 
 }
