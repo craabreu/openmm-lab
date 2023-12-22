@@ -11,6 +11,7 @@
  * https://github.com/craabreu/openmm-lab                                     *
  * -------------------------------------------------------------------------- */
 
+#include "internal/CustomSummationImpl.h"
 #include "internal/windowsExportOpenMMLab.h"
 #include "openmm/Context.h"
 #include "openmm/CustomCompoundBondForce.h"
@@ -270,41 +271,11 @@ public:
      */
     void setParameter(const string &name, double value);
 private:
-    class CustomSummationImpl;
     int numArgs;
     vector<int> particles;
     CustomCompoundBondForce *force;
     CustomSummationImpl *impl;
     Platform *platform;
-};
-
-class CustomSummation::CustomSummationImpl {
-public:
-    CustomSummationImpl(
-        int numArgs,
-        CustomCompoundBondForce &force,
-        Platform &platform,
-        const map<string, string> &properties
-    );
-    ~CustomSummationImpl();
-    double evaluate(const vector<double> &arguments);
-    vector<double> evaluateDerivatives(const vector<double> &arguments);
-    void update(CustomCompoundBondForce &force);
-    void reset();
-    double getParameter(const string &name) const;
-    void setParameter(const string &name, double value);
-    const map<string, string> &getPlatformProperties() const;
-private:
-    void setPositions(const vector<double> &arguments);
-    int numArgs;
-    Context *context;
-    bool contextIsUnchanged;
-    vector<Vec3> positions;
-    vector<double> latestArguments;
-    double value;
-    bool valueIsDirty;
-    vector<double> derivatives;
-    bool derivativesAreDirty;
 };
 
 } // namespace OpenMMLab
