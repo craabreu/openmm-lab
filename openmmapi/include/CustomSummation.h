@@ -129,19 +129,19 @@ public:
      * @param overallParameters      the names and default values of the parameters that
      *                               are shared by all terms of the summation. Not to be
      *                               confused with global context parameters
-     * @param perTermParameterNames  the names of the parameters that are unique to each
+     * @param perTermParameters      the names of the parameters that are unique to each
      *                               term of the summation
      * @param platform               the platform that will be used to evaluate the
      *                               summation
-     * @param properties             a set of values for platform-specific properties
+     * @param platformProperties     a set of values for platform-specific properties
      */
     CustomSummation(
         int numArgs,
-        const std::string &expression,
+        const string &expression,
         const map<string, double> &overallParameters,
-        const vector<string> &perTermParameterNames,
+        const vector<string> &perTermParameters,
         Platform &platform,
-        const map<string, string> &properties = map<string, string>()
+        const map<string, string> &platformProperties = map<string, string>()
     );
     ~CustomSummation();
     /**
@@ -185,7 +185,31 @@ public:
      *
      * @return         the expression
      */
-    const string &getExpression() const { return force->getEnergyFunction(); }
+    const string &getExpression() const { return expression; }
+    /**
+     * Get a map of the names to default values of the overall parameters.
+     *
+     * @return         the overall parameters
+     */
+    const map<string, double> &getOverallParameters() const { return overallParameters; }
+    /**
+     * Get a vector of the names of the per-term parameters.
+     *
+     * @return         the per-term parameters
+     */
+    const vector<string> &getPerTermParameters() const { return perTermParameters; }
+    /**
+     * Get the platform used to evaluate the summation.
+     *
+     * @return         the platform
+    */
+    Platform &getPlatform() { return *platform; }
+    /**
+     * Get the properties of the platform used to evaluate the summation.
+     *
+     * @return         the platform properties
+     */
+    const map<string, string> &getPlatformProperties() const { return platformProperties; }
     /**
      * Get the number of overall parameters.
      *
@@ -198,7 +222,7 @@ public:
      * @param index    the index of the overall parameter for which to get the name
      * @return         the overall parameter name
      */
-    const std::string &getOverallParameterName(int index) const;
+    const string &getOverallParameterName(int index) const;
     /**
      * Get the value of a overall parameter.
      *
@@ -218,17 +242,7 @@ public:
      * @param index    the index of the per-term parameter for which to get the name
      * @return         the per-term parameter name
      */
-    const std::string &getPerTermParameterName(int index) const;
-    /**
-     * Get the platform that will be used to evaluate the summation.
-     *
-     * @return         the platform
-     */
-    Platform &getPlatform() const { return *platform; }
-    /**
-     * Get the platform properties.
-    */
-    const map<string, string> &getPlatformProperties() const;
+    const string &getPerTermParameterName(int index) const;
     /**
      * Add a new term to the summation.
      *
@@ -272,10 +286,15 @@ public:
     void setParameter(const string &name, double value);
 private:
     int numArgs;
+    string expression;
+    map<string, double> overallParameters;
+    vector<string> perTermParameters;
+    vector<vector<double>> parameterValues;
     vector<int> particles;
     CustomCompoundBondForce *force;
-    CustomSummationImpl *impl;
     Platform *platform;
+    map<string, string> platformProperties;
+    CustomSummationImpl *impl;
 };
 
 } // namespace OpenMMLab

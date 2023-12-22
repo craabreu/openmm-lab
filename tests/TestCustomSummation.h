@@ -22,12 +22,12 @@ void testSimpleSummation() {
     const double a = 1.0, b = 2.0, c = 3.0, d = 4.0, e = 5.0, f = 6.0, g = 7.0, h = 8.0;
     const double x1 = 1.0, y1 = 2.0, z1 = 3.0, x2 = 4.0;
     map<string, double> overallParameters = {{"a", a}, {"b", b}};
-    vector<string> perTermParameterNames = {"c", "d", "e"};
+    vector<string> perTermParameters = {"c", "d", "e"};
     CustomSummation summation(
         4,
         "a*x1+b*y1+c*z1+d*x2+e",
         overallParameters,
-        perTermParameterNames,
+        perTermParameters,
         platform,
         properties
     );
@@ -76,12 +76,12 @@ void testCloning() {
     const double a = 1.0, b = 2.0, c = 3.0, d = 4.0, e = 5.0, f = 6.0, g = 7.0;
     const double x1 = 1.0, y1 = 2.0;
     map<string, double> overallParameters = {{"a", a}};
-    vector<string> perTermParameterNames = {"b", "c"};
+    vector<string> perTermParameters = {"b", "c"};
     CustomSummation summation(
         2,
         "a*x1+b*y1+c",
         overallParameters,
-        perTermParameterNames,
+        perTermParameters,
         platform,
         properties
     );

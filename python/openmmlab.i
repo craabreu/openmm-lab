@@ -907,7 +907,7 @@ public:
  *         A dictionary containing the names and default values of the parameters that
  *         are shared by all terms of the summation. Not to be confused with global
  *         context parameters
- *     perTermParameterNames : List[str]
+ *     perTermParameters : List[str]
  *         A list containing the names of the parameters that are unique to each term of
  *         the summation
  *     platform : OpenMM::`Platform`
@@ -946,7 +946,7 @@ public:
         int numArgs,
         const std::string &expression,
         const std::map<std::string, double> &overallParameters,
-        const std::vector<std::string> &perTermParameterNames,
+        const std::vector<std::string> &perTermParameters,
         OpenMM::Platform &platform,
         const std::map<std::string, std::string> &properties = std::map<std::string, std::string>()
     );
@@ -954,6 +954,26 @@ public:
      * Get the number of arguments this function expects.
      */
     int getNumArguments() const;
+    /**
+     * Get the expression for each term of the summation.
+     */
+    const std::string &getExpression() const;
+    /**
+     * Get a map of the names to default values of the overall parameters.
+     */
+    const std::map<std::string, double> &getOverallParameters() const;
+    /**
+     * Get a vector of the names of the per-term parameters.
+     */
+    const std::vector<std::string> &getPerTermParameters() const;
+    /**
+     * Get the platform used to evaluate the summation.
+    */
+    Platform &getPlatform();
+    /**
+     * Get the platform-specific properties used to evaluate the summation.
+     */
+    const std::map<std::string, std::string> &getPlatformProperties() const;
     /**
      * Evaluate the function.
      *
@@ -984,15 +1004,6 @@ public:
      *     the value of the derivative
      */
     double evaluateDerivative(const std::vector<double> &arguments, int which) const;
-    /**
-     * Get the expression for each term of the summation.
-     *
-     * Returns
-     * -------
-     * str
-     *     the expression
-     */
-    const std::string &getExpression() const;
     /**
      * Get the number of overall parameters.
      *
@@ -1053,24 +1064,6 @@ public:
      *     the per-term parameter name
      */
     const std::string &getPerTermParameterName(int index) const;
-    /**
-     * Get the platform that will be used to evaluate the summation.
-     *
-     * Returns
-     * -------
-     * :OpenMM:`Platform`
-     *     the platform
-     */
-    Platform &getPlatform() const;
-    /**
-     * Get the platform properties.
-     *
-     * Returns
-     * -------
-     * Dict[str, str]
-     *     the platform properties
-    */
-    const std::map<std::string, std::string> &getPlatformProperties() const;
     /**
      * Add a new term to the summation.
      *

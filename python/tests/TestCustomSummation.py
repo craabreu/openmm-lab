@@ -35,13 +35,13 @@ def testSimpleSummation(platformName, precision):
     a, b, c, d, e, f, g, h = range(8)
     x1, y1, z1, x2 = range(4)
     overallParameters = {"a": a, "b": b}
-    perTermParameterNames = ["c", "d", "e"]
+    perTermParameters = ["c", "d", "e"]
 
     summation = plugin.CustomSummation(
         4,
         "a*x1+b*y1+c*z1+d*x2+e",
         overallParameters,
-        perTermParameterNames,
+        perTermParameters,
         platform,
         properties
     )
