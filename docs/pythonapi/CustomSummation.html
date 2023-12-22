@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>CustomSummation &#8212; OpenMM Laboratory  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=039e1c02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=d72ef124" />
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=ccdb6887"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="customsummation">
+<h1>CustomSummation<a class="headerlink" href="#customsummation" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="openmmlab.CustomSummation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CustomSummation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.CustomSummation" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class allows users to define a custom function that can be evaluated by means of
+an <a class="reference external" href="http://docs.openmm.org/latest/api-python/generated/openmm.openmm.Platform.html">openmm.Platform</a>. It defines a sum that depends of a fixed number of arguments,
+a set of per-term parameters, and a set of overall parameters.</p>
+<p><a class="reference internal" href="#openmmlab.CustomSummation" title="openmmlab.CustomSummation"><code class="xref py py-class docutils literal notranslate"><span class="pre">CustomSummation</span></code></a> evaluates a user supplied algebraic expression to determine
+the value of each term. In this expression, we refer to the arguments of the defined
+custom function as x1, y1, z1, x2, y2, z2, x3, y3, etc.</p>
+<p>Expressions may involve the operators + (add), - (subtract), * (multiply),
+/ (divide), and ^ (power), and the following functions: sqrt, exp, log, sin, cos,
+sec, csc, tan, cot, asin, acos, atan, atan2, sinh, cosh, tanh, erf, erfc, min, max,
+abs, floor, ceil, step, delta, select.  All trigonometric functions are defined in
+radians, and log is the natural logarithm.  step(x) = 0 if x is less than 0,
+1 otherwise.  delta(x) = 1 if x is 0, 0 otherwise. select(x,y,z) = z if x = 0,
+y otherwise.</p>
+<p>The expression may also depend on the following variables and functions:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">p1</span></code>, <code class="docutils literal notranslate"><span class="pre">p2</span></code>, <code class="docutils literal notranslate"><span class="pre">p3</span></code>, …: three-dimensional points defined as (x1, y1, z1),</dt><dd><p>(x2, y2, z2), and so on. If the number of arguments is not a multiple of 3,
+the last of these points is completed with zeros.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">distance(p1,</span> <span class="pre">p2)</span></code>: the distance between points p1 and p2 (where p1 and p2 may be</dt><dd><p>replaced by any valid point names.</p>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">angle(p1,</span> <span class="pre">p2,</span> <span class="pre">p3)</span></code>: the angle formed by the three specified points.</p></li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">dihedral(p1,</span> <span class="pre">p2,</span> <span class="pre">p3,</span> <span class="pre">p4)</span></code>: the dihedral angle formed by the four specified</dt><dd><p>points, guaranteed to be in the range <code class="docutils literal notranslate"><span class="pre">[-pi,</span> <span class="pre">+pi]</span></code>.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>To use this class, create a <a class="reference internal" href="#openmmlab.CustomSummation" title="openmmlab.CustomSummation"><code class="xref py py-class docutils literal notranslate"><span class="pre">CustomSummation</span></code></a> object, passing the following
+data to the constructor:</p>
+<ul class="simple">
+<li><p>the number of arguments</p></li>
+<li><p>an algebraic expression that defines each term of the sum</p></li>
+<li><p>a dictionary of overall parameter names and their default values</p></li>
+<li><p>a list of per-term parameter names</p></li>
+<li><p>the <a class="reference external" href="http://docs.openmm.org/latest/api-python/generated/openmm.openmm.Platform.html">openmm.Platform</a> to use for calculations</p></li>
+<li><p>a dictionary of platform-specific property names and values</p></li>
+</ul>
+<p>Then, call <a class="reference internal" href="#openmmlab.CustomSummation.addTerm" title="openmmlab.CustomSummation.addTerm"><code class="xref py py-func docutils literal notranslate"><span class="pre">addTerm()</span></code></a> to define terms of the sum and specify
+their parameter values. After a term has been added, you can modify its parameters by
+calling <a class="reference internal" href="#openmmlab.CustomSummation.setTerm" title="openmmlab.CustomSummation.setTerm"><code class="xref py py-func docutils literal notranslate"><span class="pre">setTerm()</span></code></a>.</p>
+<p>This class also has the ability to compute derivatives of the sum with respect to
+the arguments.</p>
+<p>This class also supports the functions <code class="docutils literal notranslate"><span class="pre">pointdistance()</span></code>, <code class="docutils literal notranslate"><span class="pre">pointangle()</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">pointdihedral()</span></code>, which accept 6, 9, and 12 arguments, respectively.  These
+functions are similar to <code class="docutils literal notranslate"><span class="pre">distance()</span></code>, <code class="docutils literal notranslate"><span class="pre">angle()</span></code>, and <code class="docutils literal notranslate"><span class="pre">dihedral()</span></code>, but their
+arguments can be any evaluatable expressions rather than the names of predefined
+points like p1, p2, p3, etc. For example, the following computes the distance from
+point p1 to the midpoint between p2 and p3.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">expression</span> <span class="o">=</span> <span class="s2">&quot;pointdistance(x1, y1, z1, (x2+x3)/2, (y2+y3)/2, (z2+z3)/2)&quot;</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>numArgs</strong> (<em>int</em>) – The number of arguments the generated function takes.</p></li>
+<li><p><strong>expression</strong> (<em>str</em>) – The algebraic expression that defines each term in the summation.</p></li>
+<li><p><strong>overallParameters</strong> (<em>Dict[str, float]</em>) – A dictionary containing the names and default values of the parameters that
+are shared by all terms of the summation. Not to be confused with global
+context parameters</p></li>
+<li><p><strong>perTermParameterNames</strong> (<em>List[str]</em>) – A list containing the names of the parameters that are unique to each term of
+the summation</p></li>
+<li><p><strong>platform</strong> (OpenMM::<cite>Platform</cite>) – The platform that will be used to evaluate the summation</p></li>
+<li><p><strong>properties</strong> (<em>Dict[str, str]</em>) – A dictionary defining a set of values for platform-specific properties</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>The following code creates a CustomSummation that evaluates a Gaussian mixture
+in a three-dimensional space. All kernels have the same standard deviation, but
+different means. A kernel is added for each vertex of a unit cube. Then, the sum
+is evaluated for a point in the middle of the cube.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">function</span> <span class="o">=</span> <span class="n">openmmlab</span><span class="o">.</span><span class="n">CustomSummation</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="mi">3</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s2">&quot;exp(-((x1-mux)^2+(y1-muy)^2+(z1-muz)^2)/(2*sigma^2))/sqrt(6.2832*sigma^2)&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="s2">&quot;mux&quot;</span><span class="p">,</span> <span class="s2">&quot;muy&quot;</span><span class="p">,</span> <span class="s2">&quot;muz&quot;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">openmm</span><span class="o">.</span><span class="n">Platform</span><span class="o">.</span><span class="n">getPlatformByName</span><span class="p">(</span><span class="s2">&quot;CUDA&quot;</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">function</span><span class="o">.</span><span class="n">addTerm</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">function</span><span class="o">.</span><span class="n">addTerm</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">function</span><span class="o">.</span><span class="n">addTerm</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">function</span><span class="o">.</span><span class="n">addTerm</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">function</span><span class="o">.</span><span class="n">addTerm</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">function</span><span class="o">.</span><span class="n">addTerm</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">function</span><span class="o">.</span><span class="n">addTerm</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">function</span><span class="o">.</span><span class="n">addTerm</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">value</span> <span class="o">=</span> <span class="n">function</span><span class="o">.</span><span class="n">evaluate</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.CustomSummation.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.CustomSummation.__init__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#openmmlab.CustomSummation.addTerm" title="openmmlab.CustomSummation.addTerm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">addTerm</span></code></a>(parameters)</p></td>
+<td><p>Add a new term to the summation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#openmmlab.CustomSummation.evaluate" title="openmmlab.CustomSummation.evaluate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate</span></code></a>(arguments)</p></td>
+<td><p>Evaluate the function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#openmmlab.CustomSummation.evaluateDerivative" title="openmmlab.CustomSummation.evaluateDerivative"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluateDerivative</span></code></a>(arguments, which)</p></td>
+<td><p>Evaluate a derivative of the function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#openmmlab.CustomSummation.getExpression" title="openmmlab.CustomSummation.getExpression"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getExpression</span></code></a>()</p></td>
+<td><p>Get the expression for each term of the summation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#openmmlab.CustomSummation.getNumArguments" title="openmmlab.CustomSummation.getNumArguments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getNumArguments</span></code></a>()</p></td>
+<td><p>Get the number of arguments this function expects.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#openmmlab.CustomSummation.getNumOverallParameters" title="openmmlab.CustomSummation.getNumOverallParameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getNumOverallParameters</span></code></a>()</p></td>
+<td><p>Get the number of overall parameters.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#openmmlab.CustomSummation.getNumPerTermParameters" title="openmmlab.CustomSummation.getNumPerTermParameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getNumPerTermParameters</span></code></a>()</p></td>
+<td><p>Get the number of per-term parameters.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#openmmlab.CustomSummation.getNumTerms" title="openmmlab.CustomSummation.getNumTerms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getNumTerms</span></code></a>()</p></td>
+<td><p>Get the number of terms in the summation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#openmmlab.CustomSummation.getOverallParameterDefaultValue" title="openmmlab.CustomSummation.getOverallParameterDefaultValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getOverallParameterDefaultValue</span></code></a>(index)</p></td>
+<td><p>Get the value of a overall parameter.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#openmmlab.CustomSummation.getOverallParameterName" title="openmmlab.CustomSummation.getOverallParameterName"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getOverallParameterName</span></code></a>(index)</p></td>
+<td><p>Get the name of a overall parameter.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#openmmlab.CustomSummation.getParameter" title="openmmlab.CustomSummation.getParameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getParameter</span></code></a>(name)</p></td>
+<td><p>Get the value of an overall parameter.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#openmmlab.CustomSummation.getPerTermParameterName" title="openmmlab.CustomSummation.getPerTermParameterName"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getPerTermParameterName</span></code></a>(index)</p></td>
+<td><p>Get the name of a per-term parameter.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#openmmlab.CustomSummation.getPlatform" title="openmmlab.CustomSummation.getPlatform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getPlatform</span></code></a>()</p></td>
+<td><p>Get the platform that will be used to evaluate the summation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#openmmlab.CustomSummation.getPlatformProperties" title="openmmlab.CustomSummation.getPlatformProperties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getPlatformProperties</span></code></a>()</p></td>
+<td><p>Get the platform properties.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#openmmlab.CustomSummation.getTerm" title="openmmlab.CustomSummation.getTerm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getTerm</span></code></a>(index)</p></td>
+<td><p>Get the parameters of a term.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#openmmlab.CustomSummation.setParameter" title="openmmlab.CustomSummation.setParameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setParameter</span></code></a>(name, value)</p></td>
+<td><p>Set the value of an overall parameter.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#openmmlab.CustomSummation.setTerm" title="openmmlab.CustomSummation.setTerm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setTerm</span></code></a>(index, parameters)</p></td>
+<td><p>Set the parameters of a term.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">thisown</span></code></p></td>
+<td><p>The membership flag</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.CustomSummation.addTerm">
+<span class="sig-name descname"><span class="pre">addTerm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.CustomSummation.addTerm" title="Link to this definition">¶</a></dt>
+<dd><p>Add a new term to the summation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>parameters</strong> (<em>List[float]</em>) – the parameters of the new term</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>int</em> – the index of the new term</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.CustomSummation.evaluate">
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arguments</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.CustomSummation.evaluate" title="Link to this definition">¶</a></dt>
+<dd><p>Evaluate the function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>arguments</strong> (<em>List[float]</em>) – a vector of argument values</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>float</em> – the value of the function</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.CustomSummation.evaluateDerivative">
+<span class="sig-name descname"><span class="pre">evaluateDerivative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arguments</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.CustomSummation.evaluateDerivative" title="Link to this definition">¶</a></dt>
+<dd><p>Evaluate a derivative of the function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arguments</strong> (<em>List[float]</em>) – a vector of argument values</p></li>
+<li><p><strong>which</strong> (<em>int</em>) – the index of the argument for which to evaluate the derivative</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>float</em> – the value of the derivative</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.CustomSummation.getExpression">
+<span class="sig-name descname"><span class="pre">getExpression</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.CustomSummation.getExpression" title="Link to this definition">¶</a></dt>
+<dd><p>Get the expression for each term of the summation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>str</em> – the expression</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.CustomSummation.getNumArguments">
+<span class="sig-name descname"><span class="pre">getNumArguments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.CustomSummation.getNumArguments" title="Link to this definition">¶</a></dt>
+<dd><p>Get the number of arguments this function expects.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.CustomSummation.getNumOverallParameters">
+<span class="sig-name descname"><span class="pre">getNumOverallParameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.CustomSummation.getNumOverallParameters" title="Link to this definition">¶</a></dt>
+<dd><p>Get the number of overall parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>int</em> – the number of overall parameters</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.CustomSummation.getNumPerTermParameters">
+<span class="sig-name descname"><span class="pre">getNumPerTermParameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.CustomSummation.getNumPerTermParameters" title="Link to this definition">¶</a></dt>
+<dd><p>Get the number of per-term parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>int</em> – the number of per-term parameters</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.CustomSummation.getNumTerms">
+<span class="sig-name descname"><span class="pre">getNumTerms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.CustomSummation.getNumTerms" title="Link to this definition">¶</a></dt>
+<dd><p>Get the number of terms in the summation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>int</em> – the number of terms</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.CustomSummation.getOverallParameterDefaultValue">
+<span class="sig-name descname"><span class="pre">getOverallParameterDefaultValue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.CustomSummation.getOverallParameterDefaultValue" title="Link to this definition">¶</a></dt>
+<dd><p>Get the value of a overall parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>index</strong> (<em>int</em>) – the index of the overall parameter for which to get the value</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>float</em> – the overall parameter value</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.CustomSummation.getOverallParameterName">
+<span class="sig-name descname"><span class="pre">getOverallParameterName</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.CustomSummation.getOverallParameterName" title="Link to this definition">¶</a></dt>
+<dd><p>Get the name of a overall parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>index</strong> (<em>int</em>) – the index of the overall parameter for which to get the name</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>str</em> – the overall parameter name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.CustomSummation.getParameter">
+<span class="sig-name descname"><span class="pre">getParameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.CustomSummation.getParameter" title="Link to this definition">¶</a></dt>
+<dd><p>Get the value of an overall parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – the name of the parameter</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>float</em> – the value of the parameter</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.CustomSummation.getPerTermParameterName">
+<span class="sig-name descname"><span class="pre">getPerTermParameterName</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.CustomSummation.getPerTermParameterName" title="Link to this definition">¶</a></dt>
+<dd><p>Get the name of a per-term parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>index</strong> (<em>int</em>) – the index of the per-term parameter for which to get the name</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>str</em> – the per-term parameter name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.CustomSummation.getPlatform">
+<span class="sig-name descname"><span class="pre">getPlatform</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.CustomSummation.getPlatform" title="Link to this definition">¶</a></dt>
+<dd><p>Get the platform that will be used to evaluate the summation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="http://docs.openmm.org/latest/api-python/generated/openmm.openmm.Platform.html">openmm.Platform</a> – the platform</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.CustomSummation.getPlatformProperties">
+<span class="sig-name descname"><span class="pre">getPlatformProperties</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.CustomSummation.getPlatformProperties" title="Link to this definition">¶</a></dt>
+<dd><p>Get the platform properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>Dict[str, str]</em> – the platform properties</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.CustomSummation.getTerm">
+<span class="sig-name descname"><span class="pre">getTerm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.CustomSummation.getTerm" title="Link to this definition">¶</a></dt>
+<dd><p>Get the parameters of a term.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>index</strong> (<em>int</em>) – the index of the term</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>List[float]</em> – the parameters of the term</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.CustomSummation.setParameter">
+<span class="sig-name descname"><span class="pre">setParameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.CustomSummation.setParameter" title="Link to this definition">¶</a></dt>
+<dd><p>Set the value of an overall parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – the name of the parameter</p></li>
+<li><p><strong>value</strong> (<em>float</em>) – the value of the parameter</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openmmlab.CustomSummation.setTerm">
+<span class="sig-name descname"><span class="pre">setTerm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openmmlab.CustomSummation.setTerm" title="Link to this definition">¶</a></dt>
+<dd><p>Set the parameters of a term.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index</strong> (<em>int</em>) – the index of the term</p></li>
+<li><p><strong>parameters</strong> (<em>List[float]</em>) – the parameters of the term</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/logo_small.png" alt="Logo"/>
+    
+    <h1 class="logo logo-name">OpenMM Laboratory</h1>
+    
+  </a>
+</p>
+
+
+
+
+
+
+
+
+
+
+
+<h3><a href="../index.html">Table of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Author</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, Charlles Abreu. Project based on OpenMM.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../_sources/pythonapi/CustomSummation.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

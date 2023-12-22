@@ -1,0 +1,38 @@
+CustomSummation
+===============
+
+.. currentmodule:: openmmlab
+.. autoclass:: CustomSummation
+    :members:
+    :inherited-members:
+    :member-order: alphabetical
+    :show-inheritance:
+    :exclude-members: thisown, isinstance
+
+    .. automethod:: __init__
+
+    .. rubric:: Methods
+
+    .. autosummary::
+        addTerm
+        evaluate
+        evaluateDerivative
+        getExpression
+        getNumArguments
+        getNumOverallParameters
+        getNumPerTermParameters
+        getNumTerms
+        getOverallParameterDefaultValue
+        getOverallParameterName
+        getParameter
+        getPerTermParameterName
+        getPlatform
+        getPlatformProperties
+        getTerm
+        setParameter
+        setTerm
+
+    .. rubric:: Attributes
+
+    .. autosummary::
+        thisown
