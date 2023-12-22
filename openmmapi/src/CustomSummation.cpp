@@ -59,7 +59,7 @@ CustomSummation::Evaluator::~Evaluator() {
     delete context; // will delete the system, integrator, and force
 }
 
-void CustomSummation::Evaluator::setPositions(vector<double> arguments) {
+void CustomSummation::Evaluator::setPositions(const vector<double> &arguments) {
     if (equal(arguments.begin(), arguments.end(), latestArguments.begin()) && contextIsUnchanged)
         return;
     for (int i = 0; i < numArgs; i++)
@@ -69,7 +69,7 @@ void CustomSummation::Evaluator::setPositions(vector<double> arguments) {
     valueIsDirty = derivativesAreDirty = contextIsUnchanged = true;
 }
 
-double CustomSummation::Evaluator::evaluate(vector<double> arguments) {
+double CustomSummation::Evaluator::evaluate(const vector<double> &arguments) {
     setPositions(arguments);
     if (valueIsDirty) {
         value = context->getState(State::Energy).getPotentialEnergy();
@@ -78,7 +78,7 @@ double CustomSummation::Evaluator::evaluate(vector<double> arguments) {
     return value;
 }
 
-vector<double> CustomSummation::Evaluator::evaluateDerivatives(vector<double> arguments) {
+vector<double> CustomSummation::Evaluator::evaluateDerivatives(const vector<double> &arguments) {
     setPositions(arguments);
     if (derivativesAreDirty) {
         vector<Vec3> forces = context->getState(State::Forces).getForces();
@@ -221,21 +221,21 @@ const map<string, string> &CustomSummation::getPlatformProperties() const {
     return evaluator->getPlatformProperties();
 }
 
-int CustomSummation::addTerm(vector<double> parameters) {
+int CustomSummation::addTerm(const vector<double> &parameters) {
     force->addBond(particles, parameters);
     evaluator->reset();
     return force->getNumBonds() - 1;
 }
 
-vector<double> CustomSummation::getTerm(int index) const {
+const vector<double> &CustomSummation::getTerm(int index) const {
     ASSERT_INDEX(index, force->getNumBonds());
     vector<int> _;
-    vector<double> parameters;
-    force->getBondParameters(index, _, parameters);
-    return parameters;
+    vector<double> *parameters = new vector<double>(getNumPerTermParameters());
+    force->getBondParameters(index, _, *parameters);
+    return *parameters;
 }
 
-void CustomSummation::setTerm(int index, vector<double> parameters) {
+void CustomSummation::setTerm(int index, const vector<double> &parameters) {
     ASSERT_INDEX(index, force->getNumBonds());
     force->setBondParameters(index, particles, parameters);
     evaluator->update(*force);
