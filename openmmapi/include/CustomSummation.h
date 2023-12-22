@@ -270,23 +270,23 @@ public:
      */
     void setParameter(const string &name, double value);
 private:
-    class Evaluator;
+    class CustomSummationImpl;
     int numArgs;
     vector<int> particles;
     CustomCompoundBondForce *force;
-    Evaluator *evaluator;
+    CustomSummationImpl *impl;
     Platform *platform;
 };
 
-class CustomSummation::Evaluator {
+class CustomSummation::CustomSummationImpl {
 public:
-    Evaluator(
+    CustomSummationImpl(
         int numArgs,
         CustomCompoundBondForce &force,
         Platform &platform,
         const map<string, string> &properties
     );
-    ~Evaluator();
+    ~CustomSummationImpl();
     double evaluate(const vector<double> &arguments);
     vector<double> evaluateDerivatives(const vector<double> &arguments);
     void update(CustomCompoundBondForce &force);

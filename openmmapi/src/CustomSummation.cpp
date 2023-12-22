@@ -34,7 +34,7 @@ using namespace OpenMM;
 using namespace OpenMMLab;
 using namespace std;
 
-CustomSummation::Evaluator::Evaluator(
+CustomSummation::CustomSummationImpl::CustomSummationImpl(
     int numArgs,
     CustomCompoundBondForce &force,
     Platform &platform,
@@ -55,11 +55,11 @@ CustomSummation::Evaluator::Evaluator(
     valueIsDirty = derivativesAreDirty = contextIsUnchanged = true;
 };
 
-CustomSummation::Evaluator::~Evaluator() {
+CustomSummation::CustomSummationImpl::~CustomSummationImpl() {
     delete context; // will delete the system, integrator, and force
 }
 
-void CustomSummation::Evaluator::setPositions(const vector<double> &arguments) {
+void CustomSummation::CustomSummationImpl::setPositions(const vector<double> &arguments) {
     if (equal(arguments.begin(), arguments.end(), latestArguments.begin()) && contextIsUnchanged)
         return;
     for (int i = 0; i < numArgs; i++)
@@ -69,7 +69,7 @@ void CustomSummation::Evaluator::setPositions(const vector<double> &arguments) {
     valueIsDirty = derivativesAreDirty = contextIsUnchanged = true;
 }
 
-double CustomSummation::Evaluator::evaluate(const vector<double> &arguments) {
+double CustomSummation::CustomSummationImpl::evaluate(const vector<double> &arguments) {
     setPositions(arguments);
     if (valueIsDirty) {
         value = context->getState(State::Energy).getPotentialEnergy();
@@ -78,7 +78,7 @@ double CustomSummation::Evaluator::evaluate(const vector<double> &arguments) {
     return value;
 }
 
-vector<double> CustomSummation::Evaluator::evaluateDerivatives(const vector<double> &arguments) {
+vector<double> CustomSummation::CustomSummationImpl::evaluateDerivatives(const vector<double> &arguments) {
     setPositions(arguments);
     if (derivativesAreDirty) {
         vector<Vec3> forces = context->getState(State::Forces).getForces();
@@ -89,26 +89,26 @@ vector<double> CustomSummation::Evaluator::evaluateDerivatives(const vector<doub
     return derivatives;
 }
 
-void CustomSummation::Evaluator::update(CustomCompoundBondForce &force) {
+void CustomSummation::CustomSummationImpl::update(CustomCompoundBondForce &force) {
     force.updateParametersInContext(*context);
     contextIsUnchanged = false;
 }
 
-void CustomSummation::Evaluator::reset() {
+void CustomSummation::CustomSummationImpl::reset() {
     context->reinitialize();
     contextIsUnchanged = false;
 }
 
-double CustomSummation::Evaluator::getParameter(const string &name) const {
+double CustomSummation::CustomSummationImpl::getParameter(const string &name) const {
     return context->getParameter(name);
 }
 
-void CustomSummation::Evaluator::setParameter(const string &name, double value) {
+void CustomSummation::CustomSummationImpl::setParameter(const string &name, double value) {
     context->setParameter(name, value);
     contextIsUnchanged = false;
 }
 
-const map<string, string> &CustomSummation::Evaluator::getPlatformProperties() const {
+const map<string, string> &CustomSummation::CustomSummationImpl::getPlatformProperties() const {
     Platform &platform = context->getPlatform();
     vector<string> names = platform.getPropertyNames();
     map<string, string> &properties = *new map<string, string>;
@@ -134,19 +134,19 @@ CustomSummation::CustomSummation(
         force->addGlobalParameter(pair.first, pair.second);
     for (const auto& name : perTermParameterNames)
         force->addPerBondParameter(name);
-    evaluator = new Evaluator(numArgs, *force, platform, properties);
+    impl = new CustomSummationImpl(numArgs, *force, platform, properties);
 }
 
 CustomSummation::~CustomSummation() {
-    delete evaluator;  // will delete the force
+    delete impl;  // will delete the force
 }
 
 double CustomSummation::evaluate(const double* arguments) const {
-    return evaluator->evaluate(vector<double>(arguments, arguments + numArgs));
+    return impl->evaluate(vector<double>(arguments, arguments + numArgs));
 }
 
 double CustomSummation::evaluate(const vector<double> &arguments) const {
-    return evaluator->evaluate(arguments);
+    return impl->evaluate(arguments);
 }
 
 double CustomSummation::evaluateDerivative(const double* arguments, const int* derivOrder) const {
@@ -161,11 +161,11 @@ double CustomSummation::evaluateDerivative(const double* arguments, const int* d
             which = i;
     }
     vector<double> args(arguments, arguments + numArgs);
-    return evaluator->evaluateDerivatives(args)[which];
+    return impl->evaluateDerivatives(args)[which];
 }
 
 double CustomSummation::evaluateDerivative(const vector<double> &arguments, int which) const {
-    return evaluator->evaluateDerivatives(arguments)[which];
+    return impl->evaluateDerivatives(arguments)[which];
 }
 
 CustomSummation* CustomSummation::clone() const {
@@ -205,7 +205,7 @@ const string& CustomSummation::getOverallParameterName(int index) const {
 
 double CustomSummation::getOverallParameterDefaultValue(int index) const {
     ASSERT_INDEX(index, force->getNumGlobalParameters());
-    return evaluator->getParameter(force->getGlobalParameterName(index));
+    return impl->getParameter(force->getGlobalParameterName(index));
 }
 
 int CustomSummation::getNumPerTermParameters() const {
@@ -218,12 +218,12 @@ const string& CustomSummation::getPerTermParameterName(int index) const {
 }
 
 const map<string, string> &CustomSummation::getPlatformProperties() const {
-    return evaluator->getPlatformProperties();
+    return impl->getPlatformProperties();
 }
 
 int CustomSummation::addTerm(const vector<double> &parameters) {
     force->addBond(particles, parameters);
-    evaluator->reset();
+    impl->reset();
     return force->getNumBonds() - 1;
 }
 
@@ -238,13 +238,13 @@ const vector<double> &CustomSummation::getTerm(int index) const {
 void CustomSummation::setTerm(int index, const vector<double> &parameters) {
     ASSERT_INDEX(index, force->getNumBonds());
     force->setBondParameters(index, particles, parameters);
-    evaluator->update(*force);
+    impl->update(*force);
 }
 
 double CustomSummation::getParameter(const string &name) const {
-    return evaluator->getParameter(name);
+    return impl->getParameter(name);
 }
 
 void CustomSummation::setParameter(const string &name, double value) {
-    evaluator->setParameter(name, value);
+    impl->setParameter(name, value);
 }
