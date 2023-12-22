@@ -36,11 +36,11 @@ using namespace std;
 
 CustomSummation::CustomSummation(
     int numArgs,
-    const string &expression,
-    const map<string, double> &overallParameters,
-    const vector<string> &perTermParameters,
+    string expression,
+    map<string, double> overallParameters,
+    vector<string> perTermParameters,
     Platform &platform,
-    const map<string, string> &platformProperties
+    map<string, string> platformProperties
 ) : numArgs(numArgs),
     expression(expression),
     overallParameters(overallParameters),

@@ -944,11 +944,11 @@ class CustomSummation {
 public:
     CustomSummation(
         int numArgs,
-        const std::string &expression,
-        const std::map<std::string, double> &overallParameters,
-        const std::vector<std::string> &perTermParameters,
+        std::string expression,
+        std::map<std::string, double> overallParameters,
+        std::vector<std::string> perTermParameters,
         OpenMM::Platform &platform,
-        const std::map<std::string, std::string> &properties = std::map<std::string, std::string>()
+        std::map<std::string, std::string> properties = std::map<std::string, std::string>()
     );
     /**
      * Get the number of arguments this function expects.
