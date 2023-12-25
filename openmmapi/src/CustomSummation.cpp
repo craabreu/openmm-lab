@@ -9,26 +9,13 @@
  * -------------------------------------------------------------------------- */
 
 #include "CustomSummation.h"
-#include "openmm/Context.h"
 #include "openmm/OpenMMException.h"
 #include "openmm/Platform.h"
-#include "openmm/State.h"
-#include "openmm/System.h"
-#include "openmm/Vec3.h"
-#include "openmm/VerletIntegrator.h"
 #include "openmm/internal/AssertionUtilities.h"
-#include "openmm/internal/ContextImpl.h"
 
 #include <map>
-#include <regex>
 #include <string>
-
-#include <iostream>  // temporary
-
-#define ASSERT_INDEX(index, num) { \
-    if (index < 0 || index >= num) \
-        throwException(__FILE__, __LINE__, "Index out of range"); \
-};
+#include <vector>
 
 using namespace OpenMM;
 using namespace OpenMMLab;
@@ -48,20 +35,13 @@ CustomSummation::CustomSummation(
     platform(&platform),
     platformProperties(platformProperties)
 {
-    int numParticles = (numArgs  + 2)/ 3;
-    for (int i = 0; i < numParticles; i++)
-        particles.push_back(i);
-    force = new CustomCompoundBondForce(numParticles, expression);
-    force->setUsesPeriodicBoundaryConditions(false);
-    for (const auto& pair : overallParameters)
-        force->addGlobalParameter(pair.first, pair.second);
-    for (const auto& name : perTermParameters)
-        force->addPerBondParameter(name);
-    impl = new CustomSummationImpl(numArgs, *force, platform, platformProperties);
+    impl = new CustomSummationImpl(
+        numArgs, expression, overallParameters, perTermParameters, platform, platformProperties
+    );
 }
 
 CustomSummation::~CustomSummation() {
-    delete impl;  // will delete the force
+    delete impl;
 }
 
 double CustomSummation::evaluate(const double* arguments) const {
@@ -92,78 +72,50 @@ double CustomSummation::evaluateDerivative(const vector<double> &arguments, int 
 }
 
 CustomSummation* CustomSummation::clone() const {
-    map<string, double> overallParameters;
-    for (int i = 0; i < getNumOverallParameters(); i++) {
-        string name = getOverallParameterName(i);
-        overallParameters[name] = getOverallParameterDefaultValue(i);
-    }
-    vector<string> perTermParameters;
-    for (int i = 0; i < getNumPerTermParameters(); i++)
-        perTermParameters.push_back(getPerTermParameterName(i));
     CustomSummation *copy = new CustomSummation(
-        numArgs,
-        expression,
-        overallParameters,
-        perTermParameters,
-        *platform,
-        platformProperties
+        numArgs, expression, overallParameters, perTermParameters, *platform, platformProperties
     );
     for (int i = 0; i < getNumTerms(); i++)
         copy->addTerm(getTerm(i));
-    for (int i = 0; i < getNumOverallParameters(); i++) {
-        string name = getOverallParameterName(i);
-        copy->setParameter(name, getParameter(name));
-    }
+    copy->reinitialize();
     return copy;
 }
 
-int CustomSummation::getNumOverallParameters() const {
-    return force->getNumGlobalParameters();
-}
-
-const string& CustomSummation::getOverallParameterName(int index) const {
-    ASSERT_INDEX(index, force->getNumGlobalParameters());
-    return force->getGlobalParameterName(index);
-}
-
-double CustomSummation::getOverallParameterDefaultValue(int index) const {
-    ASSERT_INDEX(index, force->getNumGlobalParameters());
-    return impl->getParameter(force->getGlobalParameterName(index));
-}
-
-int CustomSummation::getNumPerTermParameters() const {
-    return force->getNumPerBondParameters();
-}
-
-const string& CustomSummation::getPerTermParameterName(int index) const {
-    ASSERT_INDEX(index, force->getNumPerBondParameters());
-    return force->getPerBondParameterName(index);
-}
-
 int CustomSummation::addTerm(const vector<double> &parameters) {
-    force->addBond(particles, parameters);
-    impl->reset();
-    return force->getNumBonds() - 1;
+    ASSERT_EQUAL(parameters.size(), perTermParameters.size());
+    termParameters.push_back(parameters);
+    return termParameters.size() - 1;
 }
 
 const vector<double> &CustomSummation::getTerm(int index) const {
-    ASSERT_INDEX(index, force->getNumBonds());
-    vector<int> _;
-    vector<double> *parameters = new vector<double>(getNumPerTermParameters());
-    force->getBondParameters(index, _, *parameters);
-    return *parameters;
+    ASSERT_VALID_INDEX(index, termParameters);
+    return termParameters[index];
 }
 
 void CustomSummation::setTerm(int index, const vector<double> &parameters) {
-    ASSERT_INDEX(index, force->getNumBonds());
-    force->setBondParameters(index, particles, parameters);
-    impl->update(*force);
+    ASSERT_VALID_INDEX(index, termParameters);
+    termParameters[index] = parameters;
 }
 
-double CustomSummation::getParameter(const string &name) const {
-    return impl->getParameter(name);
+double CustomSummation::getParameter(const string& name) const {
+    auto it = overallParameters.find(name);
+    if (it == overallParameters.end())
+        throw OpenMMException("Unknown parameter '" + name + "'");
+    return it->second;
 }
 
 void CustomSummation::setParameter(const string &name, double value) {
+    auto it = overallParameters.find(name);
+    if (it == overallParameters.end())
+        throw OpenMMException("Unknown parameter '" + name + "'");
+    it->second = value;
     impl->setParameter(name, value);
+}
+
+void CustomSummation::reinitialize() {
+    impl->reset(termParameters);
+}
+
+void CustomSummation::update() {
+    impl->reset(termParameters);
 }

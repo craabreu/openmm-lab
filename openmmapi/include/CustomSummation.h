@@ -13,11 +13,9 @@
 
 #include "internal/CustomSummationImpl.h"
 #include "internal/windowsExportOpenMMLab.h"
-#include "openmm/Context.h"
-#include "openmm/CustomCompoundBondForce.h"
 #include "openmm/Platform.h"
 #include "lepton/CustomFunction.h"
-#include "openmm/internal/ContextImpl.h"
+
 #include <map>
 #include <string>
 #include <vector>
@@ -29,9 +27,9 @@ using namespace std;
 namespace OpenMMLab {
 
 /**
- * This class allows users to define a custom function that can be evaluated by means of
- * an OpenMM::Platform. It defines a sum that depends of a fixed number of arguments, a
- * set of per-term parameters, and a set of overall parameters.
+ * This class allows users to define a custom function that can be evaluated in an
+ * OpenMM::Platform. It defines a sum that depends of a fixed number of arguments,
+ * a set of per-term parameters, and a set of overall parameters.
  *
  * We refer to the arguments as x1, y1, z1, x2, y2, z2, x3, y3, etc. CustomSummation
  * evaluates a user supplied algebraic expression to determine the value of each term.
@@ -151,13 +149,15 @@ public:
     /**
      * Evaluate the function.
      *
-     * @param arguments    an array of argument values
+     * @param arguments   an array of argument values
+     * @returns           the value of the function
      */
     double evaluate(const double *arguments) const;
     /**
      * Evaluate the function.
      *
      * @param arguments    a vector of argument values
+     * @returns            the value of the function
      */
     double evaluate(const vector<double> &arguments) const;
     /**
@@ -167,6 +167,7 @@ public:
      * @param derivOrder   an array specifying the number of times the function has been differentiated
      *                     with respect to each of its arguments.  For example, the array {0, 2} indicates
      *                     a second derivative with respect to the second argument.
+     * @returns            the value of the derivative
      */
     double evaluateDerivative(const double *arguments, const int *derivOrder) const;
     /**
@@ -174,6 +175,7 @@ public:
      *
      * @param arguments    a vector of argument values
      * @param which        the index of the argument for which to evaluate the derivative
+     * @returns            the value of the derivative
      */
     double evaluateDerivative(const vector<double> &arguments, int which) const;
     /**
@@ -182,67 +184,24 @@ public:
     CustomSummation *clone() const;
     /**
      * Get the expression for each term of the summation.
-     *
-     * @return         the expression
      */
     const string &getExpression() const { return expression; }
     /**
      * Get a map of the names to default values of the overall parameters.
-     *
-     * @return         the overall parameters
      */
     const map<string, double> &getOverallParameters() const { return overallParameters; }
     /**
      * Get a vector of the names of the per-term parameters.
-     *
-     * @return         the per-term parameters
      */
     const vector<string> &getPerTermParameters() const { return perTermParameters; }
     /**
      * Get the platform used to evaluate the summation.
-     *
-     * @return         the platform
     */
     Platform &getPlatform() { return *platform; }
     /**
      * Get the properties of the platform used to evaluate the summation.
-     *
-     * @return         the platform properties
      */
     const map<string, string> &getPlatformProperties() const { return platformProperties; }
-    /**
-     * Get the number of overall parameters.
-     *
-     * @return         the number of overall parameters
-     */
-    int getNumOverallParameters() const;
-    /**
-     * Get the name of a overall parameter.
-     *
-     * @param index    the index of the overall parameter for which to get the name
-     * @return         the overall parameter name
-     */
-    const string &getOverallParameterName(int index) const;
-    /**
-     * Get the value of a overall parameter.
-     *
-     * @param index    the index of the overall parameter for which to get the value
-     * @return         the overall parameter value
-     */
-    double getOverallParameterDefaultValue(int index) const;
-    /**
-     * Get the number of per-term parameters.
-     *
-     * @return         the number of per-term parameters
-     */
-    int getNumPerTermParameters() const;
-    /**
-     * Get the name of a per-term parameter.
-     *
-     * @param index    the index of the per-term parameter for which to get the name
-     * @return         the per-term parameter name
-     */
-    const string &getPerTermParameterName(int index) const;
     /**
      * Add a new term to the summation.
      *
@@ -252,22 +211,19 @@ public:
     int addTerm(const vector<double> &parameters);
     /**
      * Get the number of terms in the summation.
-     *
-     * @return         the number of terms
      */
-    int getNumTerms() const { return force->getNumBonds(); }
+    int getNumTerms() const { return termParameters.size(); }
     /**
      * Get the parameters of a term.
      *
      * @param index    the index of the term
-     * @return         the parameters of the term
     */
     const vector<double> &getTerm(int index) const;
     /**
      * Set the parameters of a term.
      *
-     * @param index    the index of the term
-     * @param parameters    the parameters of the term
+     * @param index         the index of the term
+     * @param parameters    the new parameters for the term
      */
     void setTerm(int index, const vector<double> &parameters);
     /**
@@ -284,14 +240,20 @@ public:
      * @param value   the value of the parameter
      */
     void setParameter(const string &name, double value);
+    /**
+     * Initialize the custom summation with current specification.
+     */
+    void reinitialize();
+    /**
+     * Update the custom summation.
+     */
+    void update();
 private:
     int numArgs;
     string expression;
     map<string, double> overallParameters;
     vector<string> perTermParameters;
-    vector<vector<double>> parameterValues;
-    vector<int> particles;
-    CustomCompoundBondForce *force;
+    vector<vector<double>> termParameters;
     Platform *platform;
     map<string, string> platformProperties;
     CustomSummationImpl *impl;

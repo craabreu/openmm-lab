@@ -20,8 +20,8 @@
 #include "openmm/internal/ContextImpl.h"
 
 #include <map>
-#include <regex>
 #include <string>
+#include <vector>
 
 using namespace OpenMM;
 using namespace OpenMMLab;
@@ -29,23 +29,32 @@ using namespace std;
 
 CustomSummationImpl::CustomSummationImpl(
     int numArgs,
-    CustomCompoundBondForce &force,
+    string expression,
+    map<string, double> overallParameters,
+    vector<string> perTermParameters,
     Platform &platform,
-    const map<string, string> &properties
+    map<string, string> platformProperties
 ) : numArgs(numArgs) {
-    int numParticles = force.getNumParticlesPerBond();
+    int numParticles = (numArgs  + 2)/ 3;
     positions.resize(numParticles, Vec3(0, 0, 0));
     latestArguments.resize(numArgs);
     derivatives.resize(numArgs);
-
+    valueIsDirty = derivativesAreDirty = true;
+    contextIsUnchanged = false;
+    force = new CustomCompoundBondForce(numParticles, expression);
+    force->setUsesPeriodicBoundaryConditions(false);
+    for (const auto& pair : overallParameters)
+        force->addGlobalParameter(pair.first, pair.second);
+    for (const auto& name : perTermParameters)
+        force->addPerBondParameter(name);
     System *system = new System();
-    for (int i = 0; i < numParticles; i++)
+    for (int i = 0; i < numParticles; i++) {
+        particles.push_back(i);
         system->addParticle(1.0);
-    system->addForce(static_cast<Force *>(&force));
-
+    }
+    system->addForce(static_cast<Force *>(force));
     VerletIntegrator *integrator = new VerletIntegrator(0.01);
-    context = new Context(*system, *integrator, platform, properties);
-    valueIsDirty = derivativesAreDirty = contextIsUnchanged = true;
+    context = new Context(*system, *integrator, platform, platformProperties);
 };
 
 CustomSummationImpl::~CustomSummationImpl() {
@@ -82,30 +91,24 @@ vector<double> CustomSummationImpl::evaluateDerivatives(const vector<double> &ar
     return derivatives;
 }
 
-void CustomSummationImpl::update(CustomCompoundBondForce &force) {
-    force.updateParametersInContext(*context);
+void CustomSummationImpl::update(const vector<vector<double>> &parameters) {
+    ASSERT_EQUAL(parameters.size(), force->getNumBonds());
+    for (int i = 0; i < force->getNumBonds(); i++)
+        force->setBondParameters(i, particles, parameters[i]);
+    force->updateParametersInContext(*context);
     contextIsUnchanged = false;
 }
 
-void CustomSummationImpl::reset() {
+void CustomSummationImpl::reset(const vector<vector<double>> &parameters) {
+    for (int i = 0; i < force->getNumBonds(); i++)
+        force->setBondParameters(i, particles, parameters[i]);
+    for (int i = force->getNumBonds(); i < parameters.size(); i++)
+        force->addBond(particles, parameters[i]);
     context->reinitialize();
     contextIsUnchanged = false;
-}
-
-double CustomSummationImpl::getParameter(const string &name) const {
-    return context->getParameter(name);
 }
 
 void CustomSummationImpl::setParameter(const string &name, double value) {
     context->setParameter(name, value);
     contextIsUnchanged = false;
-}
-
-const map<string, string> &CustomSummationImpl::getPlatformProperties() const {
-    Platform &platform = context->getPlatform();
-    vector<string> names = platform.getPropertyNames();
-    map<string, string> &properties = *new map<string, string>;
-    for (const auto& name : names)
-        properties[name] = platform.getPropertyValue(*context, name);
-    return properties;
 }

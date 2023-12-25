@@ -15,14 +15,13 @@
 #include "openmm/Context.h"
 #include "openmm/CustomCompoundBondForce.h"
 #include "openmm/Platform.h"
-#include "lepton/CustomFunction.h"
 #include "openmm/internal/ContextImpl.h"
+
 #include <map>
 #include <string>
 #include <vector>
 
 using namespace OpenMM;
-using namespace Lepton;
 using namespace std;
 
 namespace OpenMMLab {
@@ -31,23 +30,25 @@ class CustomSummationImpl {
 public:
     CustomSummationImpl(
         int numArgs,
-        CustomCompoundBondForce &force,
+        string expression,
+        map<string, double> overallParameters,
+        vector<string> perTermParameters,
         Platform &platform,
-        const map<string, string> &properties
+        map<string, string> platformProperties
     );
     ~CustomSummationImpl();
     double evaluate(const vector<double> &arguments);
     vector<double> evaluateDerivatives(const vector<double> &arguments);
-    void update(CustomCompoundBondForce &force);
-    void reset();
-    double getParameter(const string &name) const;
+    void update(const vector<vector<double>> &parameters);
+    void reset(const vector<vector<double>> &parameters);
     void setParameter(const string &name, double value);
-    const map<string, string> &getPlatformProperties() const;
 private:
     void setPositions(const vector<double> &arguments);
     int numArgs;
     Context *context;
     bool contextIsUnchanged;
+    CustomCompoundBondForce *force;
+    vector<int> particles;
     vector<Vec3> positions;
     vector<double> latestArguments;
     double value;
