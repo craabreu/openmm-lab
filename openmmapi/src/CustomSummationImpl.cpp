@@ -92,19 +92,15 @@ vector<double> CustomSummationImpl::evaluateDerivatives(const vector<double> &ar
 }
 
 void CustomSummationImpl::update(const vector<vector<double>> &parameters) {
-    ASSERT_EQUAL(parameters.size(), force->getNumBonds());
     for (int i = 0; i < force->getNumBonds(); i++)
         force->setBondParameters(i, particles, parameters[i]);
-    force->updateParametersInContext(*context);
-    contextIsUnchanged = false;
-}
-
-void CustomSummationImpl::reset(const vector<vector<double>> &parameters) {
-    for (int i = 0; i < force->getNumBonds(); i++)
-        force->setBondParameters(i, particles, parameters[i]);
-    for (int i = force->getNumBonds(); i < parameters.size(); i++)
-        force->addBond(particles, parameters[i]);
-    context->reinitialize();
+    if (parameters.size() == force->getNumBonds())
+        force->updateParametersInContext(*context);
+    else {
+        for (int i = force->getNumBonds(); i < parameters.size(); i++)
+            force->addBond(particles, parameters[i]);
+        context->reinitialize();
+    }
     contextIsUnchanged = false;
 }
 

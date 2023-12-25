@@ -241,11 +241,8 @@ public:
      */
     void setParameter(const string &name, double value);
     /**
-     * Initialize the custom summation with current specification.
-     */
-    void reinitialize();
-    /**
-     * Update the custom summation.
+     * Update the custom summation after new terms have been added or
+     * parameters of existing terms have been modified.
      */
     void update();
 private:

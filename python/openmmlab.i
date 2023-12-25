@@ -898,15 +898,10 @@ public:
  * :func:`~CustomSummation.evaluate` or :func:`~CustomSummation.evaluateDerivative`
  * will return 0. You must call :func:`~CustomSummation.addTerm` to add terms to the
  * summation and specify their parameters. After all terms have been added, then call
- * :func:`~CustomSummation.reinitialize` to turn them effective. You can still add
- * more terms after, but they will not be effective until a new call to
- * :func:`~CustomSummation.reinitialize` is made.
- *
- * You can also modify the per-term parameters of existing terms by calling
- * :func:`~CustomSummation.setTerm`. To make the modification effective, you do not
- * need to reinitialize the summation, but simply update it by calling
- * :func:`~CustomSummation.update`. The latter method is faster, but note that it will
- * raise an exception if new terms have been since the last reinitialization.
+ * :func:`~CustomSummation.update` to turn them effective. You can still add
+ * more terms after that or modify the parameters of existing terms by
+ * calling :func:`~CustomSummation.setTerm`. However, none of these changes become
+ * effective until :func:`~CustomSummation.update` is called again.
  *
  * Finally, you can change the overall parameters of the summation by calling
  * :func:`~CustomSummation.setParameters`. These change become effective immediately,
@@ -952,7 +947,7 @@ public:
  *     >>> function.addTerm([1.0, 0.0, 1.0])
  *     >>> function.addTerm([1.0, 1.0, 0.0])
  *     >>> function.addTerm([1.0, 1.0, 1.0])
- *     >>> function.reinitialize()
+ *     >>> function.update()
  *     >>> value = function.evaluate([0.5, 0.5, 0.5])
  */
 
@@ -1026,7 +1021,7 @@ public:
      * .. note::
      *
      *     This method does not take effect immediately. You must call
-     *     :func:`~CustomSummation.reinitialize` to turn it effective.
+     *     :func:`~CustomSummation.update` to turn it effective.
      *
      * Parameters
      * ----------
@@ -1103,8 +1098,7 @@ public:
      * .. note::
      *
      *     This method will take effect immediately, with no need to
-     *     call :func:`~CustomSummation.reinitialize` or
-     *     :func:`~CustomSummation.update`.
+     *     call :func:`~CustomSummation.update`.
      *
      * Parameters
      * ----------
@@ -1115,11 +1109,8 @@ public:
      */
     void setParameter(const std::string &name, double value);
     /**
-     * Reinitialize the custom summation after adding new terms.
-     */
-    void reinitialize();
-    /**
-     * Update the custom summation after changing parameters of existing terms.
+     * Update the custom summation after adding new terms or changing parameters of
+     * existing ones.
     */
     void update();
 };

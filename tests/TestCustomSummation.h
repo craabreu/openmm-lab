@@ -43,12 +43,12 @@ void testSimpleSummation() {
     ASSERT(equal(platformProperties.begin(), platformProperties.end(), properties.begin()));
 
     summation.addTerm(vector<double>{c, d, e});
-    summation.reinitialize();
+    summation.update();
     ASSERT_EQUAL(summation.getNumTerms(), 1);
     double *args = new double[4]{x1, y1, z1, x2};
     ASSERT_EQUAL(summation.evaluate(args), a*x1+b*y1+c*z1+d*x2+e);
     summation.addTerm(vector<double>{f, g, h});
-    summation.reinitialize();
+    summation.update();
     ASSERT_EQUAL(summation.getNumTerms(), 2);
     int *derivOrder = new int[4]{0, 0, 0, 0};
     ASSERT_EQUAL(summation.evaluate(args), 2*a*x1+2*b*y1+(c+f)*z1+(d+g)*x2+e+h);
@@ -91,7 +91,7 @@ void testCloning() {
     summation.addTerm(vector<double>{b, c});
     summation.addTerm(vector<double>{d, e});
     summation.addTerm(vector<double>{f, g});
-    summation.reinitialize();
+    summation.update();
     CustomSummation *copy = summation.clone();
     ASSERT_EQUAL(copy->getExpression(), "a*x1+b*y1+c");
     ASSERT_EQUAL(copy->getNumArguments(), 2);

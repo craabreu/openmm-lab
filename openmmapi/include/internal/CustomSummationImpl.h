@@ -40,7 +40,6 @@ public:
     double evaluate(const vector<double> &arguments);
     vector<double> evaluateDerivatives(const vector<double> &arguments);
     void update(const vector<vector<double>> &parameters);
-    void reset(const vector<vector<double>> &parameters);
     void setParameter(const string &name, double value);
 private:
     void setPositions(const vector<double> &arguments);

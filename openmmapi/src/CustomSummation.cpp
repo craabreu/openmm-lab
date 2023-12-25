@@ -77,7 +77,7 @@ CustomSummation* CustomSummation::clone() const {
     );
     for (int i = 0; i < getNumTerms(); i++)
         copy->addTerm(getTerm(i));
-    copy->reinitialize();
+    copy->update();
     return copy;
 }
 
@@ -112,10 +112,6 @@ void CustomSummation::setParameter(const string &name, double value) {
     impl->setParameter(name, value);
 }
 
-void CustomSummation::reinitialize() {
-    impl->reset(termParameters);
-}
-
 void CustomSummation::update() {
-    impl->reset(termParameters);
+    impl->update(termParameters);
 }
