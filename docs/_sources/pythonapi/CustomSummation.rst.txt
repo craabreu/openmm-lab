@@ -19,18 +19,16 @@ CustomSummation
         evaluateDerivative
         getExpression
         getNumArguments
-        getNumOverallParameters
-        getNumPerTermParameters
         getNumTerms
-        getOverallParameterDefaultValue
-        getOverallParameterName
+        getOverallParameters
         getParameter
-        getPerTermParameterName
+        getPerTermParameters
         getPlatform
         getPlatformProperties
         getTerm
         setParameter
         setTerm
+        update
 
     .. rubric:: Attributes
 

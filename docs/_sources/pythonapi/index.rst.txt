@@ -16,8 +16,9 @@ This is the implemented subclass of :OpenMM:`Force`:
 .. toctree::
     :titlesonly:
 
-    SlicedNonbondedForce
+    CustomSummation
     ExtendedCustomCVForce
+    SlicedNonbondedForce
 
 
 .. testsetup::
