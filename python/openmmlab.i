@@ -14,7 +14,6 @@ namespace std {
 };
 
 %{
-#define OPENMM_VERSION_MAJOR @OPENMM_VERSION_MAJOR@
 #define SWIG_PYTHON_CAST_MODE
 #include "SlicedNonbondedForce.h"
 #include "CustomSummation.h"
@@ -791,11 +790,7 @@ public:
      *     the values of the collective variables
      */
 %apply std::vector<double>& OUTPUT {std::vector<double>& values};
-#if OPENMM_VERSION_MAJOR >= 8
     void getCollectiveVariableValues(OpenMM::Context& context, std::vector<double>& values) const;
-#else
-    void getCollectiveVariableValues(OpenMM::Context& context, std::vector<double>& values);
-#endif
 %clear std::vector<double>& values;
     /**
      * Get the inner Context used for evaluating collective variables.
