@@ -35,42 +35,61 @@ def testSimpleSummation(platformName, precision):
     a, b, c, d, e, f, g, h = range(8)
     x1, y1, z1, x2 = range(4)
     overallParameters = {"a": a, "b": b}
-    perTermParameterNames = ["c", "d", "e"]
+    perTermParameters = ("c", "d", "e")
 
     summation = plugin.CustomSummation(
         4,
         "a*x1+b*y1+c*z1+d*x2+e",
         overallParameters,
-        perTermParameterNames,
+        perTermParameters,
         platform,
         properties
     )
 
     assert summation.getExpression() == "a*x1+b*y1+c*z1+d*x2+e"
     assert summation.getNumArguments() == 4
-    assert summation.getNumPerTermParameters() == 3
-    assert summation.getNumTerms() == 0
-    assert summation.getNumOverallParameters() == 2
-    assert summation.getOverallParameterName(0) == "a"
-    assert summation.getOverallParameterDefaultValue(0) == a
-    assert summation.getOverallParameterName(1) == "b"
-    assert summation.getOverallParameterDefaultValue(1) == b
+    assert summation.getOverallParameters() == overallParameters
+    assert summation.getPerTermParameters() == perTermParameters
+    assert summation.getPlatform().getName() == platformName
+    assert summation.getPlatformProperties() == properties
 
+    # Add a term and make sure it is evaluated correctly only after updating.
     summation.addTerm([c, d, e])
     assert summation.getNumTerms() == 1
     args = [x1, y1, z1, x2]
+    ASSERT_EQUAL(summation.evaluate(args), 0)
+    summation.update()
     ASSERT_EQUAL(summation.evaluate(args), a*x1+b*y1+c*z1+d*x2+e)
+
+    # Add another term and make sure it is evaluated correctly only after updating.
     summation.addTerm([f, g, h])
     assert summation.getNumTerms() == 2
+    ASSERT_EQUAL(summation.evaluate(args), a*x1+b*y1+c*z1+d*x2+e)
+    summation.update()
     ASSERT_EQUAL(summation.evaluate(args), 2*a*x1+2*b*y1+(c+f)*z1+(d+g)*x2+e+h)
+
+    # Make sure derivatives are evaluated correctly.
     ASSERT_EQUAL(summation.evaluateDerivative(args, 0), 2*a)
     ASSERT_EQUAL(summation.evaluateDerivative(args, 1), 2*b)
     ASSERT_EQUAL(summation.evaluateDerivative(args, 2), c+f)
     ASSERT_EQUAL(summation.evaluateDerivative(args, 3), d+g)
 
+    # Make sure evaluation is correct when new arguments are passed in.
     newArgs = [x1, x1, x1, x1]
     ASSERT_EQUAL(summation.evaluateDerivative(newArgs, 3), d+g)
     ASSERT_EQUAL(summation.evaluateDerivative(newArgs, 2), c+f)
     ASSERT_EQUAL(summation.evaluateDerivative(newArgs, 1), 2*b)
     ASSERT_EQUAL(summation.evaluateDerivative(newArgs, 0), 2*a)
     ASSERT_EQUAL(summation.evaluate(newArgs), (2*(a+b)+c+f+d+g)*x1+e+h)
+
+    # Modify an existing term and make sure evaluation is correct only after updating.
+    summation.setTerm(0, [2*c, 2*d, 2*e])
+    ASSERT_EQUAL(summation.evaluate(newArgs), (2*(a+b)+c+f+d+g)*x1+e+h)
+    summation.update()
+    ASSERT_EQUAL(summation.evaluate(newArgs), (2*(a+b)+2*c+f+2*d+g)*x1+2*e+h)
+
+    # Modify a parameter and make sure evaluation is correct without needing to update.
+    anew = 3
+    summation.setParameter("a", anew)
+    ASSERT_EQUAL(summation.evaluate(newArgs), (2*(anew+b)+2*c+f+2*d+g)*x1+2*e+h)
+    ASSERT_EQUAL(summation.evaluateDerivative(args, 0), 2*anew)

@@ -80,6 +80,20 @@ __version__ = "@CMAKE_PROJECT_VERSION@"
     function.thisown = 0
 %}
 
+
+/*
+ * Converts swig maps to dicts
+*/
+
+%pythonappend OpenMMLab::CustomSummation::getOverallParameters() const %{
+    val = dict(val)
+%}
+
+
+%pythonappend OpenMMLab::CustomSummation::getPlatformProperties() const %{
+    val = dict(val)
+%}
+
 /*
  * Convert C++ exceptions to Python exceptions.
 */
@@ -844,15 +858,16 @@ public:
 };
 
 /**
- * This class allows users to define a custom function that can be evaluated by means of
- * an :OpenMM:`Platform`. It defines a sum that depends of a fixed number of arguments,
- * a set of per-term parameters, and a set of overall parameters.
+ * This class allows users to define a custom function of a fixed number of arguments,
+ * which can be evaluated in an :OpenMM:`Platform`. Such function is a sum whose terms
+ * depend on the function arguments, as well as on a number of per-term and overall
+ * parameters.
  *
  * :class:`CustomSummation` evaluates a user supplied algebraic expression to determine
- * the value of each term. In this expression, we refer to the arguments of the defined
- * custom function as x1, y1, z1, x2, y2, z2, x3, y3, etc.
+ * the value of each term. In this expression, we refer to the custom function arguments
+ * as x1, y1, z1, x2, y2, z2, x3, etc.
  *
- * Expressions may involve the operators + (add), - (subtract), * (multiply),
+ * The expression may involve the operators + (add), - (subtract), * (multiply),
  * / (divide), and ^ (power), and the following functions: sqrt, exp, log, sin, cos,
  * sec, csc, tan, cot, asin, acos, atan, atan2, sinh, cosh, tanh, erf, erfc, min, max,
  * abs, floor, ceil, step, delta, select.  All trigonometric functions are defined in
@@ -862,40 +877,49 @@ public:
  *
  * The expression may also depend on the following variables and functions:
  *
- * * ``p1``, ``p2``, ``p3``, ...: three-dimensional points defined as (x1, y1, z1),
- *       (x2, y2, z2), and so on. If the number of arguments is not a multiple of 3,
- *       the last of these points is completed with zeros.
- * * ``distance(p1, p2)``: the distance between points p1 and p2 (where p1 and p2 may be
- *       replaced by any valid point names.
- * * ``angle(p1, p2, p3)``: the angle formed by the three specified points.
- * * ``dihedral(p1, p2, p3, p4)``: the dihedral angle formed by the four specified
- *       points, guaranteed to be in the range ``[-pi, +pi]``.
+ * * **p1**, **p2**, **p3**, ...: names given to three-dimensional points defined as
+ *       (x1, y1, z1), (x2, y2, z2), and so on. If the number of arguments is not a
+ *       multiple of 3, the last of these points is completed with zeros.
+ * * **distance(p1, p2)**: the distance between points p1 and p2 (where p1 and p2 may
+ *       be replaced by any valid point names.
+ * * **angle(p1, p2, p3)**: the angle formed by the three specified points.
+ * * **dihedral(p1, p2, p3, p4)**: the dihedral angle formed by the four specified
+ *       points, guaranteed to be in the range :math:`[-\\pi, +\\pi]`.
+ *
+ * This class also supports the functions **pointdistance()**, **pointangle()**, and
+ * **pointdihedral()**, which require 6, 9, and 12 arguments, respectively. These
+ * functions are similar to distance(), angle(), and dihedral(), but their arguments
+ * can be any evaluatable expressions. For example, the following expression computes
+ * the distance from point p1 to the midpoint between p2 and p3.
+ *
+ * >>> expression = "pointdistance(x1, y1, z1, (x2+x3)/2, (y2+y3)/2, (z2+z3)/2)"
  *
  * To use this class, create a :class:`CustomSummation` object, passing the following
  * data to the constructor:
  *
- * * the number of arguments
- * * an algebraic expression that defines each term of the sum
- * * a dictionary of overall parameter names and their default values
- * * a list of per-term parameter names
- * * the :OpenMM:`Platform` to use for calculations
- * * a dictionary of platform-specific property names and values
+ * 1. the number of arguments
+ * 2. an algebraic expression that defines each term of the sum
+ * 3. a dictionary of overall parameter names and their values
+ * 4. a list of per-term parameter names
+ * 5. the :OpenMM:`Platform` to use for the calculations
+ * 6. a dictionary of platform-specific property names and values
  *
- * Then, call :func:`~CustomSummation.addTerm` to define terms of the sum and specify
- * their parameter values. After a term has been added, you can modify its parameters by
- * calling :func:`~CustomSummation.setTerm`.
+ * In order to evaluate the sum, call :func:`~CustomSummation.evaluate`. This class
+ * also has the ability to compute derivatives of the sum with respect to the
+ * arguments. To do so, call :func:`~CustomSummation.evaluateDerivative`.
  *
- * This class also has the ability to compute derivatives of the sum with respect to
- * the arguments.
+ * The function is initialized without any terms, meaning that any call to
+ * :func:`~CustomSummation.evaluate` or :func:`~CustomSummation.evaluateDerivative`
+ * will return 0. You must call :func:`~CustomSummation.addTerm` to add terms to the
+ * summation and specify their parameters. After all terms have been added, then call
+ * :func:`~CustomSummation.update` to turn them effective. You can still add
+ * more terms after that or modify the parameters of existing terms by
+ * calling :func:`~CustomSummation.setTerm`. However, none of these changes become
+ * effective until :func:`~CustomSummation.update` is called again.
  *
- * This class also supports the functions ``pointdistance()``, ``pointangle()``, and
- * ``pointdihedral()``, which accept 6, 9, and 12 arguments, respectively.  These
- * functions are similar to ``distance()``, ``angle()``, and ``dihedral()``, but their
- * arguments can be any evaluatable expressions rather than the names of predefined
- * points like p1, p2, p3, etc. For example, the following computes the distance from
- * point p1 to the midpoint between p2 and p3.
- *
- * >>> expression = "pointdistance(x1, y1, z1, (x2+x3)/2, (y2+y3)/2, (z2+z3)/2)"
+ * Finally, you can change the overall parameters of the summation by calling
+ * :func:`~CustomSummation.setParameters`. These change become effective immediately,
+ * with no need for neither a reinitialization nor an update.
  *
  * Parameters
  * ----------
@@ -907,7 +931,7 @@ public:
  *         A dictionary containing the names and default values of the parameters that
  *         are shared by all terms of the summation. Not to be confused with global
  *         context parameters
- *     perTermParameterNames : List[str]
+ *     perTermParameters : List[str]
  *         A list containing the names of the parameters that are unique to each term of
  *         the summation
  *     platform : OpenMM::`Platform`
@@ -917,10 +941,10 @@ public:
  *
  * Examples
  * --------
- *      The following code creates a CustomSummation that evaluates a Gaussian mixture
- *      in a three-dimensional space. All kernels have the same standard deviation, but
- *      different means. A kernel is added for each vertex of a unit cube. Then, the sum
- *      is evaluated for a point in the middle of the cube.
+ *     The following code creates a CustomSummation that evaluates a Gaussian mixture
+ *     in a three-dimensional space. All kernels have the same standard deviation, but
+ *     different means. A kernel is added for each vertex of a unit cube. Then, the sum
+ *     is evaluated for a point in the middle of the cube.
  *
  *     >>> function = openmmlab.CustomSummation(
  *     ...     3,
@@ -937,6 +961,7 @@ public:
  *     >>> function.addTerm([1.0, 0.0, 1.0])
  *     >>> function.addTerm([1.0, 1.0, 0.0])
  *     >>> function.addTerm([1.0, 1.0, 1.0])
+ *     >>> function.update()
  *     >>> value = function.evaluate([0.5, 0.5, 0.5])
  */
 
@@ -944,16 +969,36 @@ class CustomSummation {
 public:
     CustomSummation(
         int numArgs,
-        const std::string &expression,
-        const std::map<std::string, double> &overallParameters,
-        const std::vector<std::string> &perTermParameterNames,
+        std::string expression,
+        std::map<std::string, double> overallParameters,
+        std::vector<std::string> perTermParameters,
         OpenMM::Platform &platform,
-        const std::map<std::string, std::string> &properties = std::map<std::string, std::string>()
+        std::map<std::string, std::string> properties = std::map<std::string, std::string>()
     );
     /**
-     * Get the number of arguments this function expects.
+     * Get the number of arguments this summation expects.
      */
     int getNumArguments() const;
+    /**
+     * Get the expression for each term of the summation.
+     */
+    const std::string &getExpression() const;
+    /**
+     * Get a dictionary with the names and values of the overall parameters.
+     */
+    const std::map<std::string, double> &getOverallParameters() const;
+    /**
+     * Get a list of the names of the per-term parameters.
+     */
+    const std::vector<std::string> &getPerTermParameters() const;
+    /**
+     * Get the platform used to evaluate the summation.
+    */
+    OpenMM::Platform &getPlatform();
+    /**
+     * Get the platform-specific properties used to evaluate the summation.
+     */
+    const std::map<std::string, std::string> &getPlatformProperties() const;
     /**
      * Evaluate the function.
      *
@@ -985,94 +1030,12 @@ public:
      */
     double evaluateDerivative(const std::vector<double> &arguments, int which) const;
     /**
-     * Get the expression for each term of the summation.
-     *
-     * Returns
-     * -------
-     * str
-     *     the expression
-     */
-    const std::string &getExpression() const;
-    /**
-     * Get the number of overall parameters.
-     *
-     * Returns
-     * -------
-     * int
-     *     the number of overall parameters
-     */
-    int getNumOverallParameters() const;
-    /**
-     * Get the name of a overall parameter.
-     *
-     * Parameters
-     * ----------
-     *     index : int
-     *         the index of the overall parameter for which to get the name
-     *
-     * Returns
-     * -------
-     * str
-     *     the overall parameter name
-     */
-    const std::string &getOverallParameterName(int index) const;
-    /**
-     * Get the value of a overall parameter.
-     *
-     * Parameters
-     * ----------
-     *     index : int
-     *         the index of the overall parameter for which to get the value
-     *
-     * Returns
-     * -------
-     * float
-     *     the overall parameter value
-     */
-    double getOverallParameterDefaultValue(int index) const;
-    /**
-     * Get the number of per-term parameters.
-     *
-     * Returns
-     * -------
-     * int
-     *     the number of per-term parameters
-     */
-    int getNumPerTermParameters() const;
-    /**
-     * Get the name of a per-term parameter.
-     *
-     * Parameters
-     * ----------
-     *     index : int
-     *         the index of the per-term parameter for which to get the name
-     *
-     * Returns
-     * -------
-     * str
-     *     the per-term parameter name
-     */
-    const std::string &getPerTermParameterName(int index) const;
-    /**
-     * Get the platform that will be used to evaluate the summation.
-     *
-     * Returns
-     * -------
-     * :OpenMM:`Platform`
-     *     the platform
-     */
-    Platform &getPlatform() const;
-    /**
-     * Get the platform properties.
-     *
-     * Returns
-     * -------
-     * Dict[str, str]
-     *     the platform properties
-    */
-    const std::map<std::string, std::string> &getPlatformProperties() const;
-    /**
      * Add a new term to the summation.
+     *
+     * .. note::
+     *
+     *     This method does not take effect immediately. You must call
+     *     :func:`~CustomSummation.update` to turn it effective.
      *
      * Parameters
      * ----------
@@ -1083,15 +1046,15 @@ public:
      * -------
      * int
      *     the index of the new term
+     *
+     * Raises
+     * ------
+     * ValueError
+     *     if the passed vector has the wrong number of parameters
      */
     int addTerm(const std::vector<double> &parameters);
     /**
      * Get the number of terms in the summation.
-     *
-     * Returns
-     * -------
-     * int
-     *     the number of terms
      */
     int getNumTerms() const;
     /**
@@ -1105,20 +1068,30 @@ public:
      * Returns
      * ------
      * List[float]
-     *     the parameters of the term
+     *     the list of parameters values
     */
     const std::vector<double> &getTerm(int index) const;
     /**
      * Set the parameters of a term.
+     *
+     * .. note::
+     *
+     *     This method does not take effect immediately. You must call
+     *     :func:`~CustomSummation.update` to turn it effective.
      *
      * Parameters
      * ----------
      *     index : int
      *         the index of the term
      *     parameters : List[float]
-     *         the parameters of the term
+     *         the new parameters for the term
+     *
+     * Raises
+     * ------
+     * ValueError
+     *     if the passed vector has the wrong number of parameters
      */
-    void setTerm(int index, const std::vector<double> parameters);
+    void setTerm(int index, const std::vector<double> &parameters);
     /**
      * Get the value of an overall parameter.
      *
@@ -1136,6 +1109,11 @@ public:
     /**
      * Set the value of an overall parameter.
      *
+     * .. note::
+     *
+     *     This method will take effect immediately, with no need to
+     *     call :func:`~CustomSummation.update`.
+     *
      * Parameters
      * ----------
      *     name : str
@@ -1144,6 +1122,11 @@ public:
      *         the value of the parameter
      */
     void setParameter(const std::string &name, double value);
+    /**
+     * Update the custom summation after adding new terms or changing parameters of
+     * existing ones.
+    */
+    void update();
 };
 
 }

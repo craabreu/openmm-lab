@@ -22,30 +22,33 @@ void testSimpleSummation() {
     const double a = 1.0, b = 2.0, c = 3.0, d = 4.0, e = 5.0, f = 6.0, g = 7.0, h = 8.0;
     const double x1 = 1.0, y1 = 2.0, z1 = 3.0, x2 = 4.0;
     map<string, double> overallParameters = {{"a", a}, {"b", b}};
-    vector<string> perTermParameterNames = {"c", "d", "e"};
+    vector<string> perTermParameters = {"c", "d", "e"};
     CustomSummation summation(
         4,
         "a*x1+b*y1+c*z1+d*x2+e",
         overallParameters,
-        perTermParameterNames,
+        perTermParameters,
         platform,
         properties
     );
     ASSERT_EQUAL(summation.getExpression(), "a*x1+b*y1+c*z1+d*x2+e");
-    ASSERT_EQUAL(summation.getNumArguments(), 4);
-    ASSERT_EQUAL(summation.getNumPerTermParameters(), 3);
-    ASSERT_EQUAL(summation.getNumTerms(), 0);
-    ASSERT_EQUAL(summation.getNumOverallParameters(), 2);
-    ASSERT_EQUAL(summation.getOverallParameterName(0), "a");
-    ASSERT_EQUAL(summation.getOverallParameterDefaultValue(0), a);
-    ASSERT_EQUAL(summation.getOverallParameterName(1), "b");
-    ASSERT_EQUAL(summation.getOverallParameterDefaultValue(1), b);
+
+    map<string, double> params = summation.getOverallParameters();
+    ASSERT(equal(params.begin(), params.end(), overallParameters.begin()));
+
+    vector<string> names = summation.getPerTermParameters();
+    ASSERT(equal(names.begin(), names.end(), perTermParameters.begin()));
+
+    map<string, string> platformProperties = summation.getPlatformProperties();
+    ASSERT(equal(platformProperties.begin(), platformProperties.end(), properties.begin()));
 
     summation.addTerm(vector<double>{c, d, e});
+    summation.update();
     ASSERT_EQUAL(summation.getNumTerms(), 1);
     double *args = new double[4]{x1, y1, z1, x2};
     ASSERT_EQUAL(summation.evaluate(args), a*x1+b*y1+c*z1+d*x2+e);
     summation.addTerm(vector<double>{f, g, h});
+    summation.update();
     ASSERT_EQUAL(summation.getNumTerms(), 2);
     int *derivOrder = new int[4]{0, 0, 0, 0};
     ASSERT_EQUAL(summation.evaluate(args), 2*a*x1+2*b*y1+(c+f)*z1+(d+g)*x2+e+h);
@@ -76,33 +79,33 @@ void testCloning() {
     const double a = 1.0, b = 2.0, c = 3.0, d = 4.0, e = 5.0, f = 6.0, g = 7.0;
     const double x1 = 1.0, y1 = 2.0;
     map<string, double> overallParameters = {{"a", a}};
-    vector<string> perTermParameterNames = {"b", "c"};
+    vector<string> perTermParameters = {"b", "c"};
     CustomSummation summation(
         2,
         "a*x1+b*y1+c",
         overallParameters,
-        perTermParameterNames,
+        perTermParameters,
         platform,
         properties
     );
     summation.addTerm(vector<double>{b, c});
     summation.addTerm(vector<double>{d, e});
     summation.addTerm(vector<double>{f, g});
+    summation.update();
     CustomSummation *copy = summation.clone();
     ASSERT_EQUAL(copy->getExpression(), "a*x1+b*y1+c");
     ASSERT_EQUAL(copy->getNumArguments(), 2);
-    ASSERT_EQUAL(copy->getNumPerTermParameters(), 2);
     ASSERT_EQUAL(copy->getNumTerms(), 3);
-    ASSERT_EQUAL(copy->getNumOverallParameters(), 1);
-    ASSERT_EQUAL(copy->getOverallParameterName(0), "a");
-    ASSERT_EQUAL(copy->getOverallParameterDefaultValue(0), a);
+    map<string, double> params = copy->getOverallParameters();
+    ASSERT(equal(params.begin(), params.end(), overallParameters.begin()));
+    vector<string> names = copy->getPerTermParameters();
+    ASSERT(equal(names.begin(), names.end(), perTermParameters.begin()));
+    map<string, string> platformProperties = copy->getPlatformProperties();
+    ASSERT(equal(platformProperties.begin(), platformProperties.end(), properties.begin()));
     ASSERT_EQUAL(
         copy->evaluate(vector<double>{x1, y1}),
         3*a*x1+(b+d+f)*y1+c+e+g
     )
-    map<string, string> properties = summation.getPlatformProperties();
-    for (auto pair : copy->getPlatformProperties())
-        ASSERT_EQUAL(properties[pair.first], pair.second);
     delete copy;
 }
 
