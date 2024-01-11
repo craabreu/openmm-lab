@@ -80,6 +80,20 @@ __version__ = "@CMAKE_PROJECT_VERSION@"
     function.thisown = 0
 %}
 
+
+/*
+ * Converts swig maps to dicts
+*/
+
+%pythonappend OpenMMLab::CustomSummation::getOverallParameters() const %{
+    val = dict(val)
+%}
+
+
+%pythonappend OpenMMLab::CustomSummation::getPlatformProperties() const %{
+    val = dict(val)
+%}
+
 /*
  * Convert C++ exceptions to Python exceptions.
 */
@@ -980,7 +994,7 @@ public:
     /**
      * Get the platform used to evaluate the summation.
     */
-    Platform &getPlatform();
+    OpenMM::Platform &getPlatform();
     /**
      * Get the platform-specific properties used to evaluate the summation.
      */
