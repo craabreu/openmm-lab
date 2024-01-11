@@ -82,8 +82,14 @@ def testSimpleSummation(platformName, precision):
     ASSERT_EQUAL(summation.evaluateDerivative(newArgs, 0), 2*a)
     ASSERT_EQUAL(summation.evaluate(newArgs), (2*(a+b)+c+f+d+g)*x1+e+h)
 
+    # Modify an existing term and make sure evaluation is correct only after updating.
+    summation.setTerm(0, [2*c, 2*d, 2*e])
+    ASSERT_EQUAL(summation.evaluate(newArgs), (2*(a+b)+c+f+d+g)*x1+e+h)
+    summation.update()
+    ASSERT_EQUAL(summation.evaluate(newArgs), (2*(a+b)+2*c+f+2*d+g)*x1+2*e+h)
+
     # Modify a parameter and make sure evaluation is correct without needing to update.
     anew = 3
     summation.setParameter("a", anew)
-    ASSERT_EQUAL(summation.evaluate(newArgs), (2*(anew+b)+c+f+d+g)*x1+e+h)
+    ASSERT_EQUAL(summation.evaluate(newArgs), (2*(anew+b)+2*c+f+2*d+g)*x1+2*e+h)
     ASSERT_EQUAL(summation.evaluateDerivative(args, 0), 2*anew)
