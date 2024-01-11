@@ -34,11 +34,36 @@ LINK_DIRECTORIES("${OPENMM_DIR}/lib" "${OPENMM_DIR}/lib/plugins")
 # Specify the C++ version we are building for.
 SET (CMAKE_CXX_STANDARD 11)
 
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake_modules")
+
+# Determine what architecture we are compiling for.
+INCLUDE(TargetArch)
+target_architecture(TARGET_ARCH)
+if ("${TARGET_ARCH}" MATCHES "x86_64|i386")
+    set(X86 ON)
+endif()
+if ("${TARGET_ARCH}" MATCHES "arm")
+    set(ARM ON)
+    if ("${TARGET_ARCH}" MATCHES "armv8")
+        add_definitions(-D__ARM64__=1)
+    else()
+        add_definitions(-D__ARM__=1)
+    endif()
+endif()
+if ("${TARGET_ARCH}" MATCHES "ppc")
+    set(PPC ON)
+    add_definitions(-D__PPC__=1)
+endif()
+
 # Set flags for linking on mac
 IF(APPLE)
     SET(CMAKE_INSTALL_NAME_DIR "@rpath")
     SET(EXTRA_COMPILE_FLAGS "-msse2 -stdlib=libc++")
 ENDIF(APPLE)
+
+IF((X86 OR ARM) AND NOT (WIN32 AND OPENMM_BUILD_STATIC_LIB))
+    SET(EXTRA_COMPILE_FLAGS "${EXTRA_COMPILE_FLAGS} -DLEPTON_USE_JIT")
+ENDIF()
 
 # Select where to install
 IF(${CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT})
