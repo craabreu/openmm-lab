@@ -24,9 +24,7 @@ using namespace std;
 
 ExtendedCustomCVForceImpl::ExtendedCustomCVForceImpl(const ExtendedCustomCVForce& owner) : owner(owner), innerIntegrator(1.0),
         innerContext(NULL) {
-#if (OPENMM_VERSION_MAJOR > 8 || (OPENMM_VERSION_MAJOR == 8 && OPENMM_VERSION_MINOR > 0))
     forceGroup = owner.getForceGroup();
-#endif
 }
 
 ExtendedCustomCVForceImpl::~ExtendedCustomCVForceImpl() {
@@ -65,11 +63,7 @@ void ExtendedCustomCVForceImpl::initialize(ContextImpl& context) {
 }
 
 double ExtendedCustomCVForceImpl::calcForcesAndEnergy(ContextImpl& context, bool includeForces, bool includeEnergy, int groups) {
-#if (OPENMM_VERSION_MAJOR > 8 || (OPENMM_VERSION_MAJOR == 8 && OPENMM_VERSION_MINOR > 0))
     if ((groups&(1<<forceGroup)) != 0)
-#else
-    if ((groups&(1<<owner.getForceGroup())) != 0)
-#endif
         return kernel.getAs<CalcExtendedCustomCVForceKernel>().execute(context, getContextImpl(*innerContext), includeForces, includeEnergy);
     return 0.0;
 }
@@ -80,7 +74,6 @@ vector<string> ExtendedCustomCVForceImpl::getKernelNames() {
     return names;
 }
 
-#if OPENMM_VERSION_MAJOR >= 8
 vector<pair<int, int> > ExtendedCustomCVForceImpl::getBondedParticles() const {
     vector<pair<int, int> > bonds;
     const ContextImpl& innerContextImpl = getContextImpl(*innerContext);
@@ -90,7 +83,6 @@ vector<pair<int, int> > ExtendedCustomCVForceImpl::getBondedParticles() const {
     }
     return bonds;
 }
-#endif
 
 map<string, double> ExtendedCustomCVForceImpl::getDefaultParameters() {
     map<string, double> parameters;

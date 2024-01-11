@@ -123,12 +123,7 @@ const string& ExtendedCustomCVForce::getTabulatedFunctionName(int index) const {
     return functions[index].name;
 }
 
-#if OPENMM_VERSION_MAJOR >= 8
-void ExtendedCustomCVForce::getCollectiveVariableValues(Context& context, vector<double>& values) const
-#else
-void ExtendedCustomCVForce::getCollectiveVariableValues(Context& context, vector<double>& values)
-#endif
-{
+void ExtendedCustomCVForce::getCollectiveVariableValues(Context& context, vector<double>& values) const {
     dynamic_cast<ExtendedCustomCVForceImpl&>(getImplInContext(context)).getCollectiveVariableValues(getContextImpl(context), values);
 }
 

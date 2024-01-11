@@ -44,9 +44,7 @@ public:
     double calcForcesAndEnergy(ContextImpl& context, bool includeForces, bool includeEnergy, int groups);
     std::map<std::string, double> getDefaultParameters();
     std::vector<std::string> getKernelNames();
-#if OPENMM_VERSION_MAJOR >= 8
     std::vector<std::pair<int, int> > getBondedParticles() const;
-#endif
     void getCollectiveVariableValues(ContextImpl& context, std::vector<double>& values);
     Context& getInnerContext();
     void updateParametersInContext(ContextImpl& context);
