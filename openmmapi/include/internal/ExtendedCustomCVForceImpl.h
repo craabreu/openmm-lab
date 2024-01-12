@@ -54,6 +54,7 @@ private:
     System innerSystem;
     VerletIntegrator innerIntegrator;
     Context* innerContext;
+    int forceGroup;  // for compatibility with OpenMM 8.0
 };
 
 } // namespace OpenMMLab
