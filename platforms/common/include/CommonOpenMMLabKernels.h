@@ -16,7 +16,10 @@
 #include "openmm/common/ComputeArray.h"
 #include "openmm/common/ComputeKernel.h"
 #include "lepton/CompiledExpression.h"
+#include "lepton/CustomFunction.h"
 #include "lepton/ExpressionProgram.h"
+
+using namespace OpenMM;
 
 namespace OpenMMLab {
 
@@ -28,6 +31,7 @@ public:
     CommonCalcExtendedCustomCVForceKernel(std::string name, const Platform& platform, ComputeContext& cc) : CalcExtendedCustomCVForceKernel(name, platform),
             cc(cc), hasInitializedListeners(false) {
     }
+    ~CommonCalcExtendedCustomCVForceKernel();
     /**
      * Initialize the kernel.
      *
@@ -67,13 +71,16 @@ public:
 private:
     class ForceInfo;
     class ReorderListener;
+    class TabulatedFunctionWrapper;
     ComputeContext& cc;
     bool hasInitializedListeners;
-    Lepton::ExpressionProgram energyExpression;
+    Lepton::CompiledExpression energyExpression;
     std::vector<std::string> variableNames, paramDerivNames, globalParameterNames;
-    std::vector<Lepton::ExpressionProgram> variableDerivExpressions;
-    std::vector<Lepton::ExpressionProgram> paramDerivExpressions;
+    std::vector<Lepton::CompiledExpression> variableDerivExpressions;
+    std::vector<Lepton::CompiledExpression> paramDerivExpressions;
     std::vector<ComputeArray> cvForces;
+    std::vector<double> globalValues, cvValues;
+    std::vector<Lepton::CustomFunction*> tabulatedFunctions;
     ComputeArray invAtomOrder;
     ComputeArray innerInvAtomOrder;
     ComputeKernel copyStateKernel, copyForcesKernel, addForcesKernel;

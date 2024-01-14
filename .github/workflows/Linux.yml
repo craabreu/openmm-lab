@@ -21,24 +21,24 @@ jobs:
         include:
           # Oldest supported versions
           - python-version: "3.9"
-            openmm-version: "7.7"
-            cuda-version: "11.0.3"
+            openmm-version: "8.1"
+            cuda-version: "11.2.0"
             gcc-version: "9.4"
-            nvcc-version: "11.0"
+            nvcc-version: "11.2"
 
           # Latest supported versions
           - python-version: "3.11"
             openmm-version: "8.1"
-            cuda-version: "11.8.0"
+            cuda-version: "11.7.0"
             gcc-version: "13.2"
-            nvcc-version: "11.8"
+            nvcc-version: "11.7"
 
     steps:
       - name: "Check out"
         uses: actions/checkout@v3
 
       - name: "Install CUDA Toolkit on Linux"
-        uses: Jimver/cuda-toolkit@v0.2.11
+        uses: Jimver/cuda-toolkit@v0.2.13
         id: cuda-toolkit
         with:
           cuda: ${{ matrix.cuda-version }}

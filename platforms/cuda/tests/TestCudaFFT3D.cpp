@@ -39,8 +39,6 @@ void testTransform(bool realToComplex, int xsize, int ysize, int zsize, int batc
     System system;
     system.addParticle(0.0);
 
-    // Print OpenMM version
-    cout << "OpenMM version: " << "OPENMM_VERSION" << endl;
     CudaPlatform::PlatformData platformData(
         NULL,
         system,
@@ -48,19 +46,10 @@ void testTransform(bool realToComplex, int xsize, int ysize, int zsize, int batc
         "true",
         platform.getPropertyDefaultValue("CudaPrecision"),
         "false",
-#if (OPENMM_VERSION_MAJOR < 8 || (OPENMM_VERSION_MAJOR == 8 && OPENMM_VERSION_MINOR == 0))
-        platform.getPropertyDefaultValue(CudaPlatform::CudaCompiler()),  // openmm<8.1
-#endif
         platform.getPropertyDefaultValue(CudaPlatform::CudaTempDirectory()),
-#if (OPENMM_VERSION_MAJOR < 8 || (OPENMM_VERSION_MAJOR == 8 && OPENMM_VERSION_MINOR == 0))
-        platform.getPropertyDefaultValue(CudaPlatform::CudaHostCompiler()),  // openmm<8.1
-#endif
         platform.getPropertyDefaultValue(CudaPlatform::CudaDisablePmeStream()),
         "false",
         1,
-#if (OPENMM_VERSION_MAJOR < 8 || (OPENMM_VERSION_MAJOR == 8 && OPENMM_VERSION_MINOR == 0))
-        true, // openmm<8.1
-#endif
         NULL
     );
     CudaContext& context = *platformData.contexts[0];

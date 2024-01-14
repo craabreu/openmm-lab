@@ -220,11 +220,7 @@ public:
      * @param[out] values    the values of the collective variables are computed and
      *                       stored into this
      */
-#if OPENMM_VERSION_MAJOR >= 8
     void getCollectiveVariableValues(Context& context, std::vector<double>& values) const;
-#else
-    void getCollectiveVariableValues(Context& context, std::vector<double>& values);
-#endif
     /**
      * Get the inner Context used for evaluating collective variables.
      *

@@ -8,25 +8,7 @@ PROJECT(OpenMMOpenMMLab VERSION 0.0.0)
 
 IF(DEFINED ENV{CONDA_PREFIX})
     SET(OPENMM_DIR $ENV{CONDA_PREFIX} CACHE PATH "Where OpenMM is installed")
-    EXECUTE_PROCESS(
-        COMMAND conda list ^openmm\\b
-        OUTPUT_VARIABLE CONDA_OPENMM_VERSION
-    )
-    IF (NOT CONDA_OPENMM_VERSION)
-        MESSAGE(FATAL_ERROR "OpenMM conda package not found. Please install OpenMM with conda.")
-    ENDIF(NOT CONDA_OPENMM_VERSION)
-    STRING(REGEX REPLACE "[^\\.]+([0-9]+\\.[0-9]+).*" "\\1" CONDA_OPENMM_VERSION "${CONDA_OPENMM_VERSION}")
-    SET(OPENMM_VERSION ${CONDA_OPENMM_VERSION} CACHE STRING "OpenMM version")
-ELSE(DEFINED ENV{CONDA_PREFIX})
 ENDIF(DEFINED ENV{CONDA_PREFIX})
-
-MESSAGE(STATUS "OpenMM version: ${OPENMM_VERSION}")
-STRING(REGEX REPLACE "^([0-9]+)\\.[0-9]+.*" "\\1" OPENMM_VERSION_MAJOR "${OPENMM_VERSION}")
-STRING(REGEX REPLACE "^[0-9]+\\.([0-9]+).*" "\\1" OPENMM_VERSION_MINOR "${OPENMM_VERSION}")
-MESSAGE(STATUS "OpenMM major version: ${OPENMM_VERSION_MAJOR}")
-MESSAGE(STATUS "OpenMM minor version: ${OPENMM_VERSION_MINOR}")
-ADD_COMPILE_DEFINITIONS(OPENMM_VERSION_MAJOR=${OPENMM_VERSION_MAJOR})
-ADD_COMPILE_DEFINITIONS(OPENMM_VERSION_MINOR=${OPENMM_VERSION_MINOR})
 
 INCLUDE_DIRECTORIES("${OPENMM_DIR}/include")
 LINK_DIRECTORIES("${OPENMM_DIR}/lib" "${OPENMM_DIR}/lib/plugins")
@@ -34,11 +16,36 @@ LINK_DIRECTORIES("${OPENMM_DIR}/lib" "${OPENMM_DIR}/lib/plugins")
 # Specify the C++ version we are building for.
 SET (CMAKE_CXX_STANDARD 11)
 
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake_modules")
+
+# Determine what architecture we are compiling for.
+INCLUDE(TargetArch)
+target_architecture(TARGET_ARCH)
+if ("${TARGET_ARCH}" MATCHES "x86_64|i386")
+    set(X86 ON)
+endif()
+if ("${TARGET_ARCH}" MATCHES "arm")
+    set(ARM ON)
+    if ("${TARGET_ARCH}" MATCHES "armv8")
+        add_definitions(-D__ARM64__=1)
+    else()
+        add_definitions(-D__ARM__=1)
+    endif()
+endif()
+if ("${TARGET_ARCH}" MATCHES "ppc")
+    set(PPC ON)
+    add_definitions(-D__PPC__=1)
+endif()
+
 # Set flags for linking on mac
 IF(APPLE)
     SET(CMAKE_INSTALL_NAME_DIR "@rpath")
     SET(EXTRA_COMPILE_FLAGS "-msse2 -stdlib=libc++")
 ENDIF(APPLE)
+
+IF((X86 OR ARM) AND NOT (WIN32 AND OPENMM_BUILD_STATIC_LIB))
+    SET(EXTRA_COMPILE_FLAGS "${EXTRA_COMPILE_FLAGS} -DLEPTON_USE_JIT")
+ENDIF()
 
 # Select where to install
 IF(${CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT})
