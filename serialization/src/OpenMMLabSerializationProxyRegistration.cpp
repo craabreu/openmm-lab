@@ -19,6 +19,8 @@
 
 #include "SlicedNonbondedForce.h"
 #include "SlicedNonbondedForceProxy.h"
+#include "ConcertedRMSDForce.h"
+#include "ConcertedRMSDForceProxy.h"
 #include "openmm/serialization/SerializationProxy.h"
 
 #if defined(WIN32)
@@ -38,4 +40,5 @@ using namespace OpenMM;
 
 extern "C" OPENMM_EXPORT_OPENMM_LAB void registerOpenMMLabSerializationProxies() {
     SerializationProxy::registerProxy(typeid(SlicedNonbondedForce), new SlicedNonbondedForceProxy());
+    SerializationProxy::registerProxy(typeid(ConcertedRMSDForce), new ConcertedRMSDForceProxy());
 }
