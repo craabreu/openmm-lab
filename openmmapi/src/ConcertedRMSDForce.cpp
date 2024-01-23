@@ -8,7 +8,6 @@
  * https://github.com/craabreu/openmm-lab                                     *
  * -------------------------------------------------------------------------- */
 
-
 #include "ConcertedRMSDForce.h"
 #include "internal/ConcertedRMSDForceImpl.h"
 

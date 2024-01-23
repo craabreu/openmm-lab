@@ -11,10 +11,10 @@
  * https://github.com/craabreu/openmm-lab                                     *
  * -------------------------------------------------------------------------- */
 
-
 #include "ConcertedRMSDForce.h"
 
 #include "openmm/internal/CustomCPPForceImpl.h"
+#include "openmm/internal/ContextImpl.h"
 #include <vector>
 
 using namespace OpenMM;
@@ -28,13 +28,17 @@ namespace OpenMMLab {
 
 class ConcertedRMSDForceImpl : public CustomCPPForceImpl {
 public:
-    ConcertedRMSDForceImpl(const ConcertedRMSDForce& owner);
+    ConcertedRMSDForceImpl(const ConcertedRMSDForce& owner) : CustomCPPForceImpl(owner), owner(owner) {}
+    void initialize(ContextImpl& context);
     double computeForce(ContextImpl& context, const vector<Vec3>& positions, vector<Vec3>& forces);
     const ConcertedRMSDForce& getOwner() const {
         return owner;
     }
 private:
     const ConcertedRMSDForce& owner;
+    int numParticles;
+    vector<int> particles;
+    vector<Vec3> referencePos;
 };
 
 } // namespace OpenMMLab
