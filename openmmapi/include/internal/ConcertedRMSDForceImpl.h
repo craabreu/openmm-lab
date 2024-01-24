@@ -34,6 +34,7 @@ public:
     const ConcertedRMSDForce& getOwner() const {
         return owner;
     }
+    void updateParametersInContext(ContextImpl& context);
 private:
     const ConcertedRMSDForce& owner;
     int numParticles;

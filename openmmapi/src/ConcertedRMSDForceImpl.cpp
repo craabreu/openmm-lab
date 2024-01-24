@@ -152,3 +152,21 @@ double ConcertedRMSDForceImpl::computeForce(ContextImpl& context, const vector<V
     }
     return rmsd;
 }
+
+void ConcertedRMSDForceImpl::updateParametersInContext(ContextImpl& context) {
+    if (referencePos.size() != owner.getReferencePositions().size())
+        throw OpenMMException("updateParametersInContext: The number of reference positions has changed");
+    particles = owner.getParticles();
+    if (particles.size() == 0)
+        for (int i = 0; i < referencePos.size(); i++)
+            particles.push_back(i);
+    numParticles = particles.size();
+    referencePos = owner.getReferencePositions();
+    Vec3 center(0.0, 0.0, 0.0);
+    for (int i : particles)
+        center += referencePos[i];
+    center /= numParticles;
+    for (Vec3& p : referencePos)
+        p -= center;
+    context.systemChanged();
+}
